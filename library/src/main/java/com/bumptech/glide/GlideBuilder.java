@@ -69,6 +69,8 @@ public final class GlideBuilder {
    * Sets the {@link com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool} implementation to use
    * to store and retrieve reused {@link android.graphics.Bitmap}s.
    *
+   * 用于配置Glide的Bitmap缓存池，默认配置是LruBitmapPool
+   *
    * @param bitmapPool The pool to use.
    * @return This builder.
    */
@@ -95,6 +97,8 @@ public final class GlideBuilder {
    * Sets the {@link com.bumptech.glide.load.engine.cache.MemoryCache} implementation to store
    * {@link com.bumptech.glide.load.engine.Resource}s that are not currently in use.
    *
+   * 用于配置Glide的内存缓存策略，默认配置是LruResourceCache
+   *
    * @param memoryCache The cache to use.
    * @return This builder.
    */
@@ -110,6 +114,8 @@ public final class GlideBuilder {
    * Sets the {@link com.bumptech.glide.load.engine.cache.DiskCache.Factory} implementation to use
    * to construct the {@link com.bumptech.glide.load.engine.cache.DiskCache} to use to store {@link
    * com.bumptech.glide.load.engine.Resource} data on disk.
+   *
+   * 用于配置Glide的硬盘缓存策略，默认配置是InternalCacheDiskCacheFactory
    *
    * @param diskCacheFactory The disk cache factory to use.
    * @return This builder.

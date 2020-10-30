@@ -188,6 +188,7 @@ public class Glide implements ComponentCallbacks2 {
           getAnnotationGeneratedGlideModules(context.getApplicationContext());
       synchronized (Glide.class) {
         if (glide == null) {
+          // 外部使用了双重检锁的同步方式确保同一时刻只执一次Glide的初始化
           checkAndInitializeGlide(context, annotationGeneratedModule);
         }
       }
@@ -266,6 +267,9 @@ public class Glide implements ComponentCallbacks2 {
     initializeGlide(context, new GlideBuilder(), generatedAppGlideModule);
   }
 
+  /**
+   * 自定义模块功能可以将更改Glide配置，替换Glide组件等操作独立出来
+   */
   @GuardedBy("Glide.class")
   @SuppressWarnings("deprecation")
   private static void initializeGlide(
@@ -274,7 +278,9 @@ public class Glide implements ComponentCallbacks2 {
       @Nullable GeneratedAppGlideModule annotationGeneratedModule) {
     Context applicationContext = context.getApplicationContext();
     List<com.bumptech.glide.module.GlideModule> manifestModules = Collections.emptyList();
+    //清单和v4注解并存的情况
     if (annotationGeneratedModule == null || annotationGeneratedModule.isManifestParsingEnabled()) {
+      //Glide V3
       manifestModules = new ManifestParser(applicationContext).parse();
     }
 
@@ -305,13 +311,17 @@ public class Glide implements ComponentCallbacks2 {
             ? annotationGeneratedModule.getRequestManagerFactory()
             : null;
     builder.setRequestManagerFactory(factory);
+    //v3
     for (com.bumptech.glide.module.GlideModule module : manifestModules) {
       module.applyOptions(applicationContext, builder);
     }
+    //v4 更改Glide配置
     if (annotationGeneratedModule != null) {
       annotationGeneratedModule.applyOptions(applicationContext, builder);
     }
+    //构建Glide
     Glide glide = builder.build(applicationContext);
+    //v3
     for (com.bumptech.glide.module.GlideModule module : manifestModules) {
       try {
         module.registerComponents(applicationContext, glide, glide.registry);
@@ -325,9 +335,11 @@ public class Glide implements ComponentCallbacks2 {
             e);
       }
     }
+    //v4  加入替换Glide的组件的逻辑
     if (annotationGeneratedModule != null) {
       annotationGeneratedModule.registerComponents(applicationContext, glide, glide.registry);
     }
+    //注册和注销 ComponentCallbacks2回调接口
     applicationContext.registerComponentCallbacks(glide);
     Glide.glide = glide;
   }
@@ -337,9 +349,12 @@ public class Glide implements ComponentCallbacks2 {
   private static GeneratedAppGlideModule getAnnotationGeneratedGlideModules(Context context) {
     GeneratedAppGlideModule result = null;
     try {
+      //获取前面应用中带注解的GlideModule
       Class<GeneratedAppGlideModule> clazz =
           (Class<GeneratedAppGlideModule>)
               Class.forName("com.bumptech.glide.GeneratedAppGlideModuleImpl");
+      // 2、如果GlideModule为空或者可配置manifest里面的标志为true，则获取manifest里面
+      // 配置的GlideModule模块（manifestModules）
       result =
           clazz.getDeclaredConstructor(Context.class).newInstance(context.getApplicationContext());
     } catch (ClassNotFoundException e) {
@@ -441,7 +456,7 @@ public class Glide implements ComponentCallbacks2 {
     GifDrawableBytesTranscoder gifDrawableBytesTranscoder = new GifDrawableBytesTranscoder();
 
     ContentResolver contentResolver = context.getContentResolver();
-
+    //register()方法中传入的参数表示Glide支持使用哪种参数类型来加载图片，以及如何去处理这种类型的图片加载
     registry
         .append(ByteBuffer.class, new ByteBufferEncoder())
         .append(InputStream.class, new StreamEncoder(arrayPool))
@@ -920,6 +935,7 @@ public class Glide implements ComponentCallbacks2 {
     }
   }
 
+  //通知 应用程序 当前内存使用情况
   @Override
   public void onTrimMemory(int level) {
     trimMemory(level);

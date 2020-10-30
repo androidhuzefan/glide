@@ -31,6 +31,10 @@ public abstract class AppGlideModule extends LibraryGlideModule implements Appli
    * to Glide's annotation processor.
    *
    * <p>Returns {@code true} by default.
+   *
+   * 因为glide V4是兼容V3版本的所以他还会从manifast中读取GlideModule信息,但是呢,我们已经把manifast
+   * 的GlideModule已经去掉了,为了保证咱们初始化glide的效率,这个方法就是不让glide从manifast中读取了
+   * ,从而达到高效初始化的效果
    */
   public boolean isManifestParsingEnabled() {
     return true;
