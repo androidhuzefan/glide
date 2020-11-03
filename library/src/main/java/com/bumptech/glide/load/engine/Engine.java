@@ -25,7 +25,19 @@ import com.bumptech.glide.util.pool.FactoryPools;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
-/** Responsible for starting loads and managing active and cached resources. */
+/**
+ * Engine 负责管理请求以及活动资源、缓存等
+ *
+ * 通过请求构建 Key；
+ * 从活动资源中获取资源，获取到则返回；
+ * 从缓存中获取资源，获取到则直接返回；
+ * 判断当前请求是否正在执行，是则直接返回；
+ * 构建 EngineJob 与 DecodeJob 并执行。
+ *
+ *
+ * Responsible for starting loads and managing active and cached resources.
+ *
+ * */
 public class Engine
     implements EngineJobListener,
         MemoryCache.ResourceRemovedListener,
@@ -126,6 +138,8 @@ public class Engine
   }
 
   /**
+   * 构建好 Key 之后第一件事就是去这个缓存中获取资源，获取到则直接返回，获取不到才继续从其他缓存中寻找
+   *
    * Starts a load for the given arguments.
    *
    * <p>Must be called on the main thread.

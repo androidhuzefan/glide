@@ -45,8 +45,11 @@ import java.util.concurrent.Executor;
 /**
  * A generic class that can handle setting options and staring loads for generic resource types.
  *
+ *  用来构建请求
+ *
  * @param <TranscodeType> The type of resource that will be delivered to the {@link
  *     com.bumptech.glide.request.target.Target}.
+ *
  */
 // Public API.
 @SuppressWarnings({"unused", "WeakerAccess"})
@@ -409,6 +412,7 @@ public class RequestBuilder<TranscodeType> extends BaseRequestOptions<RequestBui
     isModelSet = true;
     return this;
   }
+
   /**
    * Returns an object to load the given {@link Bitmap}.
    *

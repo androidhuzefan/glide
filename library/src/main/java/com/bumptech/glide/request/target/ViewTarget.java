@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * ViewTarget 基本上类似 CustomViewTarget ，只是具体的实现上有点不同
+ *
  * A base {@link Target} for loading {@link android.graphics.Bitmap}s into {@link View}s that
  * provides default implementations for most most methods and can determine the size of views using
  * a {@link android.view.ViewTreeObserver.OnDrawListener}.

@@ -93,6 +93,7 @@ public class RequestManagerRetriever implements Handler.Callback {
         : new FirstFrameWaiter();
   }
 
+  //即传入Application类型的参数
   @NonNull
   private RequestManager getApplicationManager(@NonNull Context context) {
     // Either an application context or we're on a background thread.
@@ -119,8 +120,9 @@ public class RequestManagerRetriever implements Handler.Callback {
     return applicationManager;
   }
 
+  //传入非Application类型的参数
   @NonNull
-  public RequestManager get(@NonNull Context context) {
+  public RequestManager get(Context context) {
     if (context == null) {
       throw new IllegalArgumentException("You cannot start a load on a null Context");
     } else if (Util.isOnMainThread() && !(context instanceof Application)) {
@@ -140,9 +142,11 @@ public class RequestManagerRetriever implements Handler.Callback {
     return getApplicationManager(context);
   }
 
+  //传入非Application类型的参数
   @NonNull
   public RequestManager get(@NonNull FragmentActivity activity) {
     if (Util.isOnBackgroundThread()) {
+      //非主线程
       return get(activity.getApplicationContext());
     } else {
       assertNotDestroyed(activity);
@@ -152,6 +156,7 @@ public class RequestManagerRetriever implements Handler.Callback {
     }
   }
 
+  //传入非Application类型的参数
   @NonNull
   public RequestManager get(@NonNull Fragment fragment) {
     Preconditions.checkNotNull(
@@ -336,6 +341,7 @@ public class RequestManagerRetriever implements Handler.Callback {
     if (context instanceof Activity) {
       return (Activity) context;
     } else if (context instanceof ContextWrapper) {
+      //Service Application ContextThemeWrapper View
       return findActivity(((ContextWrapper) context).getBaseContext());
     } else {
       return null;
@@ -434,6 +440,7 @@ public class RequestManagerRetriever implements Handler.Callback {
     // This is a poor heuristic, but it's about all we have. We'd rather err on the side of visible
     // and start requests than on the side of invisible and ignore valid requests.
     Activity activity = findActivity(context);
+    //isFinishing() 可用来判断Activity是否处于活跃状态（false）还是等待回收状态（true）
     return activity == null || !activity.isFinishing();
   }
 

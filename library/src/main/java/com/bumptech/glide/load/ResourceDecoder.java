@@ -6,6 +6,12 @@ import com.bumptech.glide.load.engine.Resource;
 import java.io.IOException;
 
 /**
+ * 与 Encoder 对应，数据解码器，用来将原始数据解码成相应的数据类型，针对不同的请求实现类都不同，例如通过网络请求最终获取到的是一个 InputStream，经过 ByteBufferBitmapDecoder 解码后再生成一个 Bitmap
+ *
+ * 解码时会根据 option 以及图片大小（如果有的话）按需加载 Bitmap
+ *
+ * 图片数据获取到之后会根据不同的类型使用对应的解码器对其解码
+ *
  * An interface for decoding resources.
  *
  * @param <T> The type the resource will be decoded from (File, InputStream etc).

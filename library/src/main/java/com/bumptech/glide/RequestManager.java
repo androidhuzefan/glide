@@ -43,6 +43,9 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
+ * 创建 RequestBuilder
+ * 通过生命周期管理请求的启动结束等
+ *
  * A class for managing and starting requests for Glide. Can use activity, fragment and connectivity
  * lifecycle events to intelligently stop, start, and restart requests. Retrieve either by
  * instantiating a new object, or to take advantage built in Activity and Fragment lifecycle

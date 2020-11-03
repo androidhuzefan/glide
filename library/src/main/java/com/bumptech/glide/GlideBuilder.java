@@ -523,6 +523,7 @@ public final class GlideBuilder {
       connectivityMonitorFactory = new DefaultConnectivityMonitorFactory();
     }
 
+    ////创建 Bitmap 池
     if (bitmapPool == null) {
       int size = memorySizeCalculator.getBitmapPoolSize();
       if (size > 0) {
@@ -536,10 +537,12 @@ public final class GlideBuilder {
       arrayPool = new LruArrayPool(memorySizeCalculator.getArrayPoolSizeInBytes());
     }
 
+    //创建内存缓存
     if (memoryCache == null) {
       memoryCache = new LruResourceCache(memorySizeCalculator.getMemoryCacheSize());
     }
 
+    //创建磁盘缓存
     if (diskCacheFactory == null) {
       diskCacheFactory = new InternalCacheDiskCacheFactory(context);
     }

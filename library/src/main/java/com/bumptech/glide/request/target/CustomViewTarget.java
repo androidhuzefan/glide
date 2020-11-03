@@ -24,6 +24,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * 负责加载 Bitmap、Drawable 并且放到 View 上
+ *
+ * 另外，构建好的 Request 会通过 View#setTag 方法存入 View 中，后面再通过 View#getTag 方法获取
+ *
  * A base {@link Target} for loading resources ({@link android.graphics.Bitmap}, {@link Drawable}
  * etc) into {@link View}s that provides default implementations for most methods and can determine
  * the size of views using a {@link android.view.ViewTreeObserver.OnDrawListener}.
@@ -276,7 +280,7 @@ public abstract class CustomViewTarget<T extends View, Z> implements Target<Z> {
     if (attachStateListener == null || isAttachStateListenerAdded) {
       return;
     }
-
+    //这个监听器可以监听到 View 被添加到 Widow 以及移除 Window 时的事件，从而更好的管理 Request 生命周期
     view.addOnAttachStateChangeListener(attachStateListener);
     isAttachStateListenerAdded = true;
   }

@@ -17,6 +17,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
+ * 用来同步加载图片的 Target
+ *
  * A {@link java.util.concurrent.Future} implementation for Glide that can be used to load resources
  * in a blocking manner on background threads.
  *

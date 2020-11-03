@@ -8,6 +8,11 @@ import com.bumptech.glide.request.Request;
 import com.bumptech.glide.request.transition.Transition;
 
 /**
+ * 一个可被 Glide 加载并且具有生命周期的资源
+ *
+ * 当我们调用 RequestBuilder#into 方法时会根据传入参数创建对应类型的 Target 实现类
+ *
+ *
  * An interface that Glide can load a resource into and notify of relevant lifecycle events during a
  * load.
  *

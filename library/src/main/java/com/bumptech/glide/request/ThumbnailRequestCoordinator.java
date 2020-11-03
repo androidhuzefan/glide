@@ -4,6 +4,11 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 
 /**
+ * 用来协调两个请求
+ *
+ * 有的请求需要同时加载原图和缩略图
+ * 对两个对象的一个统一个管理协调包装
+ *
  * A coordinator that coordinates two individual {@link Request}s that load a small thumbnail
  * version of an image and the full size version of the image at the same time.
  */

@@ -4,6 +4,8 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 
 /**
+ * 考虑这样的一个场景，当我们加载失败时我可能希望继续去通过网络或者别的什么加载另一张图片
+ *
  * Runs a single primary {@link Request} until it completes and then a fallback error request only
  * if the single primary request fails.
  */

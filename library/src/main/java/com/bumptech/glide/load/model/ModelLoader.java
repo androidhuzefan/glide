@@ -10,6 +10,10 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * 工厂接口，用于将任意复杂的数据模型转换为可由 DataFetcher 用于获取模型所代表的资源的数据的具体数据类型
+ *
+ * 允许将图片按照 ImageView 大小按需加载
+ *
  * A factory interface for translating an arbitrarily complex data model into a concrete data type
  * that can be used by an {@link DataFetcher} to obtain the data for a resource represented by the
  * model.
@@ -35,6 +39,10 @@ import java.util.List;
 public interface ModelLoader<Model, Data> {
 
   /**
+   * 用于识别资源唯一性的 Key;
+   * 缓存相关的备用 Key 列表
+   * DataFetcher
+   *
    * Contains a set of {@link com.bumptech.glide.load.Key Keys} identifying the source of the load,
    * alternate cache keys pointing to equivalent data, and a {@link
    * com.bumptech.glide.load.data.DataFetcher} that can be used to fetch data not found in cache.
@@ -61,6 +69,10 @@ public interface ModelLoader<Model, Data> {
   }
 
   /**
+   * 加载图片时可以根据需要的宽高以及其他设置做到按需加载
+   *
+   * 通过参数构建一个 LoadData 实例
+   *
    * Returns a {@link com.bumptech.glide.load.model.ModelLoader.LoadData} containing a {@link
    * com.bumptech.glide.load.data.DataFetcher} required to decode the resource represented by this
    * model, as well as a set of {@link com.bumptech.glide.load.Key Keys} that identify the data

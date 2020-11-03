@@ -15,6 +15,8 @@ import java.util.NavigableMap;
 import java.util.TreeMap;
 
 /**
+ * 通过 Bitmap 的 size 与 Config 来当做 key 缓存 Bitmap，Key 也会通过 KeyPool 来缓存在一个队列（Queue）中
+ *
  * Keys {@link android.graphics.Bitmap Bitmaps} using both {@link
  * android.graphics.Bitmap#getAllocationByteCount()} and the {@link android.graphics.Bitmap.Config}
  * returned from {@link android.graphics.Bitmap#getConfig()}.

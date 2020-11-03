@@ -4,6 +4,10 @@ import androidx.annotation.NonNull;
 import java.io.File;
 
 /**
+ * 用来将给定的数据写入持久性存储介质中（文件）
+ *
+ * 数据加载完成之后会先使用 Encoder 将数据存入本地磁盘缓存文件中
+ *
  * An interface for writing data to some persistent data store (i.e. a local File cache).
  *
  * @param <T> The type of the data that will be written.

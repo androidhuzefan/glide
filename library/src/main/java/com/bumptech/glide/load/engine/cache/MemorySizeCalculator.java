@@ -12,6 +12,10 @@ import com.bumptech.glide.util.Preconditions;
 import com.bumptech.glide.util.Synthetic;
 
 /**
+ * 根据当前机器参数计算需要设置的缓存大小
+ * <p>
+ * 用来计算 BitmapPool 、ArrayPool 以及 MemoryCache 大小的
+ * <p>
  * A calculator that tries to intelligently determine cache sizes for a given device based on some
  * constants and the devices screen density, width, and height.
  */
@@ -35,27 +39,37 @@ public final class MemorySizeCalculator {
   MemorySizeCalculator(MemorySizeCalculator.Builder builder) {
     this.context = builder.context;
 
+    ////默认为 4MB，如果是低内存设备则在此基础上除以二
     arrayPoolSize =
         isLowMemoryDevice(builder.activityManager)
             ? builder.arrayPoolSizeBytes / LOW_MEMORY_BYTE_ARRAY_POOL_DIVISOR
             : builder.arrayPoolSizeBytes;
+
+    //其中会先获取当前进程可使用内存大小，
+    //然后通过判断是否为低内存设备乘以相应的系数，
+    //普通设备是乘以 0.4，低内存为 0.33，这样得到的是 Glide 可使用的最大内存阈值 maxSize
     int maxSize =
         getMaxSize(
             builder.activityManager, builder.maxSizeMultiplier, builder.lowMemoryMaxSizeMultiplier);
 
     int widthPixels = builder.screenDimensions.getWidthPixels();
     int heightPixels = builder.screenDimensions.getHeightPixels();
+    //计算一张格式为 ARGB_8888 ，大小为屏幕大小的图片的占用内存大小
+    //BYTES_PER_ARGB_8888_PIXEL 值为 4
     int screenSize = widthPixels * heightPixels * BYTES_PER_ARGB_8888_PIXEL;
 
     int targetBitmapPoolSize = Math.round(screenSize * builder.bitmapPoolScreens);
 
     int targetMemoryCacheSize = Math.round(screenSize * builder.memoryCacheScreens);
+    //去掉 ArrayPool 占用的内存后还剩余的内存
     int availableSize = maxSize - arrayPoolSize;
 
     if (targetMemoryCacheSize + targetBitmapPoolSize <= availableSize) {
+      //未超出内存限制
       memoryCacheSize = targetMemoryCacheSize;
       bitmapPoolSize = targetBitmapPoolSize;
     } else {
+      //超出内存限制
       float part = availableSize / (builder.bitmapPoolScreens + builder.memoryCacheScreens);
       memoryCacheSize = Math.round(part * builder.memoryCacheScreens);
       bitmapPoolSize = Math.round(part * builder.bitmapPoolScreens);
@@ -82,17 +96,23 @@ public final class MemorySizeCalculator {
     }
   }
 
-  /** Returns the recommended memory cache size for the device it is run on in bytes. */
+  /**
+   * Returns the recommended memory cache size for the device it is run on in bytes.
+   */
   public int getMemoryCacheSize() {
     return memoryCacheSize;
   }
 
-  /** Returns the recommended bitmap pool size for the device it is run on in bytes. */
+  /**
+   * Returns the recommended bitmap pool size for the device it is run on in bytes.
+   */
   public int getBitmapPoolSize() {
     return bitmapPoolSize;
   }
 
-  /** Returns the recommended array pool size for the device it is run on in bytes. */
+  /**
+   * Returns the recommended array pool size for the device it is run on in bytes.
+   */
   public int getArrayPoolSizeInBytes() {
     return arrayPoolSize;
   }
@@ -172,9 +192,8 @@ public final class MemorySizeCalculator {
     }
 
     /**
-     * Sets the number of device screens worth of pixels the {@link
-     * com.bumptech.glide.load.engine.cache.MemoryCache} should be able to hold and returns this
-     * Builder.
+     * Sets the number of device screens worth of pixels the {@link com.bumptech.glide.load.engine.cache.MemoryCache}
+     * should be able to hold and returns this Builder.
      */
     public Builder setMemoryCacheScreens(float memoryCacheScreens) {
       Preconditions.checkArgument(
@@ -184,9 +203,8 @@ public final class MemorySizeCalculator {
     }
 
     /**
-     * Sets the number of device screens worth of pixels the {@link
-     * com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool} should be able to hold and returns
-     * this Builder.
+     * Sets the number of device screens worth of pixels the {@link com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool}
+     * should be able to hold and returns this Builder.
      */
     public Builder setBitmapPoolScreens(float bitmapPoolScreens) {
       Preconditions.checkArgument(

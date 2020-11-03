@@ -17,10 +17,22 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadFactory;
 
+/**
+ * 获取资源
+ *
+ * 第一级缓存,表示当前正在活动中的资源
+ *
+ * 当资源加载成功，或者通过缓存中命中资源后都会将其放入 ActiveResources 中，资源被释放时移除出 ActiveResources
+ *
+ * 由于其中的生命周期较短，所以没有大小限制
+ */
+
 final class ActiveResources {
   private final boolean isActiveResourceRetentionAllowed;
   private final Executor monitorClearedResourcesExecutor;
   @VisibleForTesting final Map<Key, ResourceWeakReference> activeEngineResources = new HashMap<>();
+  //用来跟踪弱引用（或者软引用、虚引用）是否被 gc 的
+  //MessageQueue#addIdleHandler 添加一个 MessageQueue.IdleHandler 对象，Handler 会在线程空闲时调用这个方法
   private final ReferenceQueue<EngineResource<?>> resourceReferenceQueue = new ReferenceQueue<>();
 
   private ResourceListener listener;

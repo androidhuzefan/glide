@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
+ * 负责执行请求并将结果反映到 Target 上 (Target 代表一个可被Glide加载并且具有生命周期的资源)
+ *
  * A {@link Request} that loads a {@link com.bumptech.glide.load.engine.Resource} into a given
  * {@link Target}.
  *
@@ -298,6 +300,9 @@ public final class SingleRequest<R> implements Request, SizeReadyCallback, Resou
    * Cancels the current load if it is in progress, clears any resources held onto by the request
    * and replaces the loaded resource if the load completed with the placeholder.
    *
+   * 用于停止并清除请求
+   * 从 Engine 中移除掉这个任务以及回调接口
+   *
    * <p>Cleared requests can be restarted with a subsequent call to {@link #begin()}
    *
    * @see #cancel()
@@ -427,7 +432,10 @@ public final class SingleRequest<R> implements Request, SizeReadyCallback, Resou
     target.onLoadFailed(error);
   }
 
-  /** A callback method that should never be invoked directly. */
+  /**
+   * A callback method that should never be invoked directly.
+   * onSizeReady 方法算是用来构建参数列表并且调用 Engine#load 方法的
+   */
   @Override
   public void onSizeReady(int width, int height) {
     stateVerifier.throwIfRecycled();

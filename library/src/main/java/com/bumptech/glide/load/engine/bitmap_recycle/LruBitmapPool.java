@@ -16,6 +16,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * 缓存大小管理、封装、日志记录
+ *
  * An {@link com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool} implementation that uses an
  * {@link com.bumptech.glide.load.engine.bitmap_recycle.LruPoolStrategy} to bucket {@link Bitmap}s
  * and then uses an LRU eviction policy to evict {@link android.graphics.Bitmap}s from the least

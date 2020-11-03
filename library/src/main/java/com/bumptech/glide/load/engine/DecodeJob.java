@@ -27,6 +27,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 负责从缓存或数据源中加载原始数据并通过解码器转换为相应的资源类型（Resource）
+ *
+ * DecodeJob 实现了 Runnable 接口，由 EngineJob 将其运行在指定线程池中
+ *
+ * 首次加载一张图片资源时，资源加载完成后会先存入到本地缓存文件中，然后再从文件中获取
+ *
+ * 会根据资源类型去 Glide 中获取已注册的 DataFetcher ，然后通过 DataFetcher#loadData 方法获取原始数据，获取完成后使用 Encoder 将数据存入磁盘缓存文件中，同时使用对应的解码器将原始数据转换为相应的资源文件
+ *
  * A class responsible for decoding resources either from cached data or from the original source
  * and applying transformations and transcodes.
  *

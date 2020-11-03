@@ -21,6 +21,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
+ * 主要用来执行 DecodeJob 以及管理加载完成的回调，各种监听器
+ *
  * A class that manages a load by adding and removing callbacks for for the load and notifying
  * callbacks when the load completes.
  */

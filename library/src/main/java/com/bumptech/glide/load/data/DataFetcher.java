@@ -6,6 +6,8 @@ import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.DataSource;
 
 /**
+ * 加载资源的根源就在这里
+ *
  * Lazily retrieves data that can be used to load a resource.
  *
  * <p>A new instance is created per resource load by {@link
@@ -42,6 +44,8 @@ public interface DataFetcher<T> {
   }
 
   /**
+   * 内部实现就是通过 HttpUrlConnect 发起网络请求，或者打开一个文件，或者使用 AssetManager 打开一个资源等等
+   *
    * Fetch data from which a resource can be decoded.
    *
    * <p>This will always be called on background thread so it is safe to perform long running tasks
