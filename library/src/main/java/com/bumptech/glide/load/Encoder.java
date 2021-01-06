@@ -8,6 +8,8 @@ import java.io.File;
  *
  * 数据加载完成之后会先使用 Encoder 将数据存入本地磁盘缓存文件中
  *
+ * 将数据转换成文件，用来配合Glide硬盘缓存
+ *
  * An interface for writing data to some persistent data store (i.e. a local File cache).
  *
  * @param <T> The type of the data that will be written.

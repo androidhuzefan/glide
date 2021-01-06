@@ -26,8 +26,10 @@ import com.bumptech.glide.request.transition.Transition;
  * </ul>
  *
  * The typical lifecycle is onLoadStarted -> onResourceReady or onLoadFailed -> onLoadCleared.
- * However, there are no guarantees. onLoadStarted may not be called if the resource is in memory or
- * if the load will fail because of a null model object. onLoadCleared similarly may never be called
+ * However,
+ * there are no guarantees. onLoadStarted may not be called if the resource is in memory or
+ * if the load will fail because of a null model object.
+ * onLoadCleared similarly may never be called
  * if the target is never cleared. See the docs for the individual methods for details.
  *
  * @param <R> The type of resource the target can display.

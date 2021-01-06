@@ -250,15 +250,6 @@ public final class LruArrayPool implements ArrayPool {
     }
 
     @Override
-    public boolean equals(Object o) {
-      if (o instanceof Key) {
-        Key other = (Key) o;
-        return size == other.size && arrayClass == other.arrayClass;
-      }
-      return false;
-    }
-
-    @Override
     public String toString() {
       return "Key{" + "size=" + size + "array=" + arrayClass + '}';
     }
@@ -266,6 +257,15 @@ public final class LruArrayPool implements ArrayPool {
     @Override
     public void offer() {
       pool.offer(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (o instanceof Key) {
+        Key other = (Key) o;
+        return size == other.size && arrayClass == other.arrayClass;
+      }
+      return false;
     }
 
     @Override

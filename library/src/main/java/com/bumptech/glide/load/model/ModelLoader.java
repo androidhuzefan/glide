@@ -18,15 +18,15 @@ import java.util.List;
  * that can be used by an {@link DataFetcher} to obtain the data for a resource represented by the
  * model.
  *
- * <p>This interface has two objectives: 1. To translate a specific model into a data type that can
- * be decoded into a resource.
+ * <p>This interface has two objectives:
+ * 1. To translate a specific model into a data type that can be decoded into a resource.
  *
  * <p>2. To allow a model to be combined with the dimensions of the view to fetch a resource of a
  * specific size.
  *
  * <p>This not only avoids having to duplicate dimensions in xml and in your code in order to
- * determine the size of a view on devices with different densities, but also allows you to use
- * layout weights or otherwise programmatically put the dimensions of the view without forcing you
+ * determine the size of a view on devices with different densities,
+ * but also allows you to use layout weights or otherwise programmatically put the dimensions of the view without forcing you
  * to fetch a generic resource size.
  *
  * <p>The smaller the resource you fetch, the less bandwidth and battery life you use, and the lower
@@ -96,6 +96,8 @@ public interface ModelLoader<Model, Data> {
       @NonNull Model model, int width, int height, @NonNull Options options);
 
   /**
+   * 用来判断给定模型是不是此加载器可能加载的已识别类型
+   *
    * Returns true if the given model is a of a recognized type that this loader can probably load.
    *
    * <p>For example, you may want multiple Uri -> InputStream loaders. One might handle media store

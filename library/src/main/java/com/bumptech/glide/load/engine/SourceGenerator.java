@@ -41,9 +41,12 @@ class SourceGenerator implements DataFetcherGenerator, DataFetcherGenerator.Fetc
 
   @Override
   public boolean startNext() {
+    //第一次 从源数据获取数据时，是不会执行到这里的
+    //从下面的分析可知，等下次有数据时，也会调用到这里，就把数据缓存到磁盘
     if (dataToCache != null) {
       Object data = dataToCache;
       dataToCache = null;
+      //放入缓存
       cacheData(data);
     }
 
@@ -55,11 +58,14 @@ class SourceGenerator implements DataFetcherGenerator, DataFetcherGenerator.Fetc
     loadData = null;
     boolean started = false;
     while (!started && hasNextModelLoader()) {
+      // helper.getLoadData() 获取所有符合条件的ModelLoader，这些ModelLoader 包括默认的和自定义的
+      // 这里的符合条件，也就是ModelLoader 中的handles函数是否返回true，再说直白点，就是判断在load()传入的对象类型，是否可以被ModelLoader所处理
       loadData = helper.getLoadData().get(loadDataListIndex++);
       if (loadData != null
           && (helper.getDiskCacheStrategy().isDataCacheable(loadData.fetcher.getDataSource())
               || helper.hasLoadPath(loadData.fetcher.getDataClass()))) {
         started = true;
+        //通过LoadData对象内部的 fetcher ，来进行实际的请求操作（例如发起网络请求）
         startNextLoad(loadData);
       }
     }
@@ -67,6 +73,7 @@ class SourceGenerator implements DataFetcherGenerator, DataFetcherGenerator.Fetc
   }
 
   private void startNextLoad(final LoadData<?> toStart) {
+    //通过LoadData对象内部的 fetcher ，来进行实际的请求操作（例如发起网络请求） HttpUrlFetcher
     loadData.fetcher.loadData(
         helper.getPriority(),
         new DataCallback<Object>() {
@@ -140,9 +147,11 @@ class SourceGenerator implements DataFetcherGenerator, DataFetcherGenerator.Fetc
   void onDataReadyInternal(LoadData<?> loadData, Object data) {
     DiskCacheStrategy diskCacheStrategy = helper.getDiskCacheStrategy();
     if (data != null && diskCacheStrategy.isDataCacheable(loadData.fetcher.getDataSource())) {
+      //该数据类型，有启用磁盘缓存，就把值付给dataToCache
       dataToCache = data;
       // We might be being called back on someone else's thread. Before doing anything, we should
       // reschedule to get back onto Glide's thread.
+      // 调用DecodeJob的reschedule，用线程池执行任务，实际上就是再次调用SourceGenerator的startNext
       cb.reschedule();
     } else {
       cb.onDataFetcherReady(

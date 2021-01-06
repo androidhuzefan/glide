@@ -69,8 +69,7 @@ public class HttpUrlFetcher implements DataFetcher<InputStream> {
     }
   }
 
-  private InputStream loadDataWithRedirects(
-      URL url, int redirects, URL lastUrl, Map<String, String> headers) throws HttpException {
+  private InputStream loadDataWithRedirects(URL url, int redirects, URL lastUrl, Map<String, String> headers) throws HttpException {
     if (redirects >= MAXIMUM_REDIRECTS) {
       throw new HttpException(
           "Too many (> " + MAXIMUM_REDIRECTS + ") redirects!", INVALID_STATUS_CODE);
@@ -86,6 +85,7 @@ public class HttpUrlFetcher implements DataFetcher<InputStream> {
       }
     }
 
+    //通过HttpURLConnection网络请求数据
     urlConnection = buildAndConfigureConnection(url, headers);
 
     try {
@@ -105,7 +105,8 @@ public class HttpUrlFetcher implements DataFetcher<InputStream> {
     final int statusCode = getHttpStatusCodeOrInvalid(urlConnection);
     if (isHttpOk(statusCode)) {
       return getStreamForSuccessfulRequest(urlConnection);
-    } else if (isHttpRedirect(statusCode)) {
+    }
+    else if (isHttpRedirect(statusCode)) {
       String redirectUrlString = urlConnection.getHeaderField(REDIRECT_HEADER_FIELD);
       if (TextUtils.isEmpty(redirectUrlString)) {
         throw new HttpException("Received empty or null redirect url", statusCode);
@@ -120,9 +121,11 @@ public class HttpUrlFetcher implements DataFetcher<InputStream> {
       // to disconnecting the url connection below. See #2352.
       cleanup();
       return loadDataWithRedirects(redirectUrl, redirects + 1, url, headers);
-    } else if (statusCode == INVALID_STATUS_CODE) {
+    }
+    else if (statusCode == INVALID_STATUS_CODE) {
       throw new HttpException(statusCode);
-    } else {
+    }
+    else {
       try {
         throw new HttpException(urlConnection.getResponseMessage(), statusCode);
       } catch (IOException e) {
@@ -142,8 +145,7 @@ public class HttpUrlFetcher implements DataFetcher<InputStream> {
     return INVALID_STATUS_CODE;
   }
 
-  private HttpURLConnection buildAndConfigureConnection(URL url, Map<String, String> headers)
-      throws HttpException {
+  private HttpURLConnection buildAndConfigureConnection(URL url, Map<String, String> headers) throws HttpException {
     HttpURLConnection urlConnection;
     try {
       urlConnection = connectionFactory.build(url);
@@ -156,6 +158,9 @@ public class HttpUrlFetcher implements DataFetcher<InputStream> {
     urlConnection.setConnectTimeout(timeout);
     urlConnection.setReadTimeout(timeout);
     urlConnection.setUseCaches(false);
+    //httpUrlConnection.setDoOutput(false);以后就可以使用conn.getOutputStream().write()
+    //httpUrlConnection.setDoInput(true);以后就可以使用conn.getInputStream().read();
+    //get请求的话默认就行了，post请求需要setDoOutput(true)，这个默认是false的
     urlConnection.setDoInput(true);
     // Stop the urlConnection instance of HttpUrlConnection from following redirects so that
     // redirects will be handled by recursive calls to this method, loadDataWithRedirects.

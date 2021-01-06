@@ -11,6 +11,8 @@ import java.io.File;
 import java.io.InputStream;
 
 /**
+ * StringLoader.buildLoadData->MultiModelLoader.buildLoadData
+ *
  * A model loader for handling certain string models. Handles paths, urls, and any uri string with a
  * scheme handled by {@link android.content.ContentResolver#openInputStream(Uri)}.
  *
@@ -32,6 +34,7 @@ public class StringLoader<Data> implements ModelLoader<String, Data> {
     if (uri == null || !uriLoader.handles(uri)) {
       return null;
     }
+    // StringLoader.buildLoadData->MultiModelLoader.buildLoadData
     return uriLoader.buildLoadData(uri, width, height, options);
   }
 

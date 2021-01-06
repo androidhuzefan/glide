@@ -25,8 +25,7 @@ import java.util.Map.Entry;
 @SuppressWarnings("PMD.DataClass")
 public class GlideContext extends ContextWrapper {
   @VisibleForTesting
-  static final TransitionOptions<?, ?> DEFAULT_TRANSITION_OPTIONS =
-      new GenericTransitionOptions<>();
+  static final TransitionOptions<?, ?> DEFAULT_TRANSITION_OPTIONS = new GenericTransitionOptions<>();
 
   private final ArrayPool arrayPool;
   private final Registry registry;
@@ -95,8 +94,7 @@ public class GlideContext extends ContextWrapper {
   }
 
   @NonNull
-  public <X> ViewTarget<ImageView, X> buildImageViewTarget(
-      @NonNull ImageView imageView, @NonNull Class<X> transcodeClass) {
+  public <X> ViewTarget<ImageView, X> buildImageViewTarget(@NonNull ImageView imageView, @NonNull Class<X> transcodeClass) {
     return imageViewTargetFactory.buildTarget(imageView, transcodeClass);
   }
 

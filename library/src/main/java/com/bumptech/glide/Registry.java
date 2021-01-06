@@ -42,17 +42,25 @@ public class Registry {
   public static final String BUCKET_BITMAP_DRAWABLE = "BitmapDrawable";
   private static final String BUCKET_PREPEND_ALL = "legacy_prepend_all";
   private static final String BUCKET_APPEND_ALL = "legacy_append";
-
+  //维护{@link ModelLoader}的有序放置以及它们处理的模型和数据类型,从最高优先级到最低优先级的顺序。
   private final ModelLoaderRegistry modelLoaderRegistry;
+  //编码数据容器，有序列表
   private final EncoderRegistry encoderRegistry;
+  //包含能够解码任意数据类型的{@link ResourceDecoder}的有序列表
+  //分为从最高优先级解码器到最低优先级解码器的任意资源类型。
   private final ResourceDecoderRegistry decoderRegistry;
+  //包含能够编码任意资源*类型的{@link ResourceEncoder}的有序列表。
   private final ResourceEncoderRegistry resourceEncoderRegistry;
+  //DataRewinder的生产工厂
   private final DataRewinderRegistry dataRewinderRegistry;
+  //注册和转化ResourceTranscoder
   private final TranscoderRegistry transcoderRegistry;
+  //包含能够解析图像标题的{@link ImageHeaderParser}的无序列表。
   private final ImageHeaderParserRegistry imageHeaderParserRegistry;
-
+  //维护“模型+资源”类的高速缓存到一组已注册资源类的集合，这些资源类是可以从模型类中解码到资源类的子类。
   private final ModelToResourceClassCache modelToResourceClassCache =
       new ModelToResourceClassCache();
+  //维护数据，资源和转码类的缓存
   private final LoadPathCache loadPathCache = new LoadPathCache();
   private final Pool<List<Throwable>> throwableListPool = FactoryPools.threadSafeList();
 

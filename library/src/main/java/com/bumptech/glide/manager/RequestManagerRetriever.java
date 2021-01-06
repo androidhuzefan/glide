@@ -126,6 +126,8 @@ public class RequestManagerRetriever implements Handler.Callback {
     if (context == null) {
       throw new IllegalArgumentException("You cannot start a load on a null Context");
     } else if (Util.isOnMainThread() && !(context instanceof Application)) {
+      //在主线程，且context 不是Application类型的
+      //在满足这个条件下的，都是需要创建一个Fragment ，来关联生命周期的
       if (context instanceof FragmentActivity) {
         return get((FragmentActivity) context);
       } else if (context instanceof Activity) {
@@ -134,6 +136,7 @@ public class RequestManagerRetriever implements Handler.Callback {
           // Only unwrap a ContextWrapper if the baseContext has a non-null application context.
           // Context#createPackageContext may return a Context without an Application instance,
           // in which case a ContextWrapper may be used to attach one.
+          //Service
           && ((ContextWrapper) context).getBaseContext().getApplicationContext() != null) {
         return get(((ContextWrapper) context).getBaseContext());
       }

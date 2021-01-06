@@ -12,6 +12,7 @@ import java.nio.ByteBuffer;
 
 /** Decodes {@link android.graphics.Bitmap Bitmaps} from {@link java.nio.ByteBuffer ByteBuffers}. */
 public class ByteBufferBitmapDecoder implements ResourceDecoder<ByteBuffer, Bitmap> {
+  //downsampler主要是对流进行解码，旋转，压缩，圆角等处理
   private final Downsampler downsampler;
 
   public ByteBufferBitmapDecoder(Downsampler downsampler) {

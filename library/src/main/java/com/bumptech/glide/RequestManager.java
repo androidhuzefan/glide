@@ -46,6 +46,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * 创建 RequestBuilder
  * 通过生命周期管理请求的启动结束等
  *
+ * load 设置图片来源，有多种方式，从本地资源Drawable，String，Uri，File等
+ *
  * A class for managing and starting requests for Glide. Can use activity, fragment and connectivity
  * lifecycle events to intelligently stop, start, and restart requests. Retrieve either by
  * instantiating a new object, or to take advantage built in Activity and Fragment lifecycle
@@ -176,8 +178,7 @@ public class RequestManager
    * @return This request manager.
    */
   @NonNull
-  public synchronized RequestManager applyDefaultRequestOptions(
-      @NonNull RequestOptions requestOptions) {
+  public synchronized RequestManager applyDefaultRequestOptions(@NonNull RequestOptions requestOptions) {
     updateRequestOptions(requestOptions);
     return this;
   }
@@ -198,8 +199,7 @@ public class RequestManager
    * @return This request manager.
    */
   @NonNull
-  public synchronized RequestManager setDefaultRequestOptions(
-      @NonNull RequestOptions requestOptions) {
+  public synchronized RequestManager setDefaultRequestOptions(@NonNull RequestOptions requestOptions) {
     setRequestOptions(requestOptions);
     return this;
   }
@@ -301,8 +301,7 @@ public class RequestManager
    * <ul>
    *   <li>When pausing on an Activity all attached fragments will also get paused.
    *   <li>When pausing on an attached Fragment all descendant fragments will also get paused.
-   *   <li>When pausing on a detached Fragment or the application context only the current
-   *       RequestManager is paused.
+   *   <li>When pausing on a detached Fragment or the application context only the current RequestManager is paused.
    * </ul>
    *
    * <p>Note, on pre-Jelly Bean MR1 calling pause on a Fragment will not cause child fragments to
@@ -592,8 +591,7 @@ public class RequestManager
    */
   @NonNull
   @CheckResult
-  public <ResourceType> RequestBuilder<ResourceType> as(
-      @NonNull Class<ResourceType> resourceClass) {
+  public <ResourceType> RequestBuilder<ResourceType> as(@NonNull Class<ResourceType> resourceClass) {
     return new RequestBuilder<>(glide, this, resourceClass, context);
   }
 
@@ -670,7 +668,9 @@ public class RequestManager
   }
 
   synchronized void track(@NonNull Target<?> target, @NonNull Request request) {
+    //把填充目标（这里是ImageView）加入跟踪器里，如果activity生命周期发生变化，就会执行填充目标相应的生命周期
     targetTracker.track(target);
+    //执行Request
     requestTracker.runRequest(request);
   }
 
@@ -692,6 +692,36 @@ public class RequestManager
     return super.toString() + "{tracker=" + requestTracker + ", treeNode=" + treeNode + "}";
   }
 
+  ////TRIM_MEMORY_UI_HIDDEN 表示应用程序的所有UI界面被隐藏了，即用户点击了Home键或者Back键导致应用的UI界面不可见．这时候应该释放一些资源
+  //    case Activity.TRIM_MEMORY_UI_HIDDEN:
+  //      Log.i(TAG, "onTrimMemory() level=TRIM_MEMORY_UI_HIDDEN");
+  //    break;
+  ////TRIM_MEMORY_RUNNING_MODERATE 表示应用程序正常运行，并且不会被杀掉。但是目前手机的内存已经有点低了，系统可能会开始根据LRU缓存规则来去杀死进程了。
+  //    case Activity.TRIM_MEMORY_RUNNING_MODERATE:
+  //    Log.i(TAG, "onTrimMemory() level=TRIM_MEMORY_RUNNING_MODERATE");
+  //    break;
+  ////TRIM_MEMORY_RUNNING_LOW 表示应用程序正常运行，并且不会被杀掉。但是目前手机的内存已经非常低了，我们应该去释放掉一些不必要的资源以提升系统的性能，同时这也会直接影响到我们应用程序的性能。
+  //    case Activity.TRIM_MEMORY_RUNNING_LOW:
+  //      Log.i(TAG, "onTrimMemory() level=TRIM_MEMORY_RUNNING_LOW");
+  //    break;
+  ////TRIM_MEMORY_RUNNING_CRITICAL 表示应用程序仍然正常运行，但是系统已经根据LRU缓存规则杀掉了大部分缓存的进程了。这个时候我们应当尽可能地去释放任何不必要的资源，不然的话系统可能会继续杀掉所有缓存中的进程，并且开始杀掉一些本来应当保持运行的进程，比如说后台运行的服务。
+  //    case Activity.TRIM_MEMORY_RUNNING_CRITICAL:
+  //      Log.i(TAG, "onTrimMemory() level=TRIM_MEMORY_RUNNING_CRITICAL");
+  //    break;
+  ////当应用程序是缓存的，则会收到以下几种类型的回调：
+  ////TRIM_MEMORY_BACKGROUND 表示手机目前内存已经很低了，系统准备开始根据LRU缓存来清理进程。这个时候我们的程序在LRU缓存列表的最近位置，是不太可能被清理掉的，但这时去释放掉一些比较容易恢复的资源能够让手机的内存变得比较充足，从而让我们的程序更长时间地保留在缓存当中，这样当用户返回我们的程序时会感觉非常顺畅，而不是经历了一次重新启动的过程。
+  //    case Activity.TRIM_MEMORY_BACKGROUND:
+  //      Log.i(TAG, "onTrimMemory() level=TRIM_MEMORY_BACKGROUND");
+  //    break;
+  ////TRIM_MEMORY_MODERATE 表示手机目前内存已经很低了，并且我们的程序处于LRU缓存列表的中间位置，如果手机内存还得不到进一步释放的话，那么我们的程序就有被系统杀掉的风险了。
+  //    case Activity.TRIM_MEMORY_MODERATE:
+  //      Log.i(TAG, "onTrimMemory() level=TRIM_MEMORY_MODERATE");
+  //    break;
+  ////TRIM_MEMORY_COMPLETE 表示手机目前内存已经很低了，并且我们的程序处于LRU缓存列表的最边缘位置，系统会最优先考虑杀掉我们的应用程序，在这个时候应当尽可能地把一切可以释放的东西都进行释放。
+  //    case Activity.TRIM_MEMORY_COMPLETE:
+  //      Log.i(TAG, "onTrimMemory() level=TRIM_MEMORY_COMPLETE");
+  //    break;
+  //  }
   @Override
   public void onTrimMemory(int level) {
     if (level == TRIM_MEMORY_MODERATE && pauseAllRequestsOnTrimMemoryModerate) {
@@ -707,8 +737,7 @@ public class RequestManager
   @Override
   public void onConfigurationChanged(Configuration newConfig) {}
 
-  private class RequestManagerConnectivityListener
-      implements ConnectivityMonitor.ConnectivityListener {
+  private class RequestManagerConnectivityListener implements ConnectivityMonitor.ConnectivityListener {
     @GuardedBy("RequestManager.this")
     private final RequestTracker requestTracker;
 

@@ -49,8 +49,7 @@ public class LoadPathCache {
    */
   @SuppressWarnings("unchecked")
   @Nullable
-  public <Data, TResource, Transcode> LoadPath<Data, TResource, Transcode> get(
-      Class<Data> dataClass, Class<TResource> resourceClass, Class<Transcode> transcodeClass) {
+  public <Data, TResource, Transcode> LoadPath<Data, TResource, Transcode> get(Class<Data> dataClass, Class<TResource> resourceClass, Class<Transcode> transcodeClass) {
     MultiClassKey key = getKey(dataClass, resourceClass, transcodeClass);
     LoadPath<?, ?, ?> result;
     synchronized (cache) {
@@ -73,8 +72,7 @@ public class LoadPathCache {
     }
   }
 
-  private MultiClassKey getKey(
-      Class<?> dataClass, Class<?> resourceClass, Class<?> transcodeClass) {
+  private MultiClassKey getKey(Class<?> dataClass, Class<?> resourceClass, Class<?> transcodeClass) {
     MultiClassKey key = keyRef.getAndSet(null);
     if (key == null) {
       key = new MultiClassKey();

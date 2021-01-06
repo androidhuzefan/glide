@@ -503,18 +503,22 @@ public final class GlideBuilder {
 
   @NonNull
   Glide build(@NonNull Context context) {
+    //创建执行器，用于从数据源获取数据，例如网络请求
     if (sourceExecutor == null) {
       sourceExecutor = GlideExecutor.newSourceExecutor();
     }
 
+    //创建执行器，用于从本地缓存获取数据
     if (diskCacheExecutor == null) {
       diskCacheExecutor = GlideExecutor.newDiskCacheExecutor();
     }
 
+    //动画加载
     if (animationExecutor == null) {
       animationExecutor = GlideExecutor.newAnimationExecutor();
     }
 
+    //根据当前机器参数计算需要设置的缓存大小
     if (memorySizeCalculator == null) {
       memorySizeCalculator = new MemorySizeCalculator.Builder(context).build();
     }
@@ -523,7 +527,7 @@ public final class GlideBuilder {
       connectivityMonitorFactory = new DefaultConnectivityMonitorFactory();
     }
 
-    ////创建 Bitmap 池
+    //创建 Bitmap 池，用于回收LruCache缓存的图片，把图片回收到bitmapPool中，这样下次再创建图片时，可服用该内存，避免连续创建回收内存，造成的内存抖动
     if (bitmapPool == null) {
       int size = memorySizeCalculator.getBitmapPoolSize();
       if (size > 0) {
@@ -533,6 +537,7 @@ public final class GlideBuilder {
       }
     }
 
+    //创建数组池
     if (arrayPool == null) {
       arrayPool = new LruArrayPool(memorySizeCalculator.getArrayPoolSizeInBytes());
     }
@@ -546,7 +551,7 @@ public final class GlideBuilder {
     if (diskCacheFactory == null) {
       diskCacheFactory = new InternalCacheDiskCacheFactory(context);
     }
-
+    //创建Engine，用于真正的执行，例如发起网络请求，从磁盘读取等
     if (engine == null) {
       engine =
           new Engine(

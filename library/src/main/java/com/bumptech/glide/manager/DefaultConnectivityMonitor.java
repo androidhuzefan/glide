@@ -12,7 +12,9 @@ import androidx.annotation.NonNull;
 import com.bumptech.glide.util.Preconditions;
 import com.bumptech.glide.util.Synthetic;
 
-/** Uses {@link android.net.ConnectivityManager} to identify connectivity changes. */
+/**
+ *  Uses {@link android.net.ConnectivityManager} to identify connectivity changes.
+ */
 final class DefaultConnectivityMonitor implements ConnectivityMonitor {
   private static final String TAG = "ConnectivityMonitor";
   private final Context context;

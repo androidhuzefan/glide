@@ -34,6 +34,15 @@ import java.util.concurrent.Executor;
  * 判断当前请求是否正在执行，是则直接返回；
  * 构建 EngineJob 与 DecodeJob 并执行。
  *
+ * 在这里开始图片的请求，图片的三级缓存的功能，也在这里
+ *
+ * 这里我们先定义一下三级缓存：
+ *
+ * 弱引用缓存，使用弱引用，来缓存图片，图片被回收后，会保存到内存缓存中。
+ *
+ * 内存缓存LruCache（默认是在创建Glide的时候创建的，也可自定义）， 如果弱引用缓存找不到图片，就从内存缓存中查找，找到图片后，删除内存缓存（防止因Lru的策略，图片正在使用，但是被回收掉的问题）
+ *
+ * 磁盘缓存 ，上面两级缓存都没有图片，如果在磁盘缓存中找到，就把图片加载后，放到弱引用缓存中。磁盘缓存数据的种类有两种，一种是缓存源数据，这种数据需要经过解析才能得到图片。一种是图片数据，直接加载进来就可以用的。可以通过diskCacheStrategyOf 来自由选择如何缓存
  *
  * Responsible for starting loads and managing active and cached resources.
  *
@@ -188,6 +197,7 @@ public class Engine
       Executor callbackExecutor) {
     long startTime = VERBOSE_IS_LOGGABLE ? LogTime.getLogTime() : 0;
 
+    //生成缓存key，以后就根据这个key，在缓存中查找
     EngineKey key =
         keyFactory.buildKey(
             model,
@@ -204,6 +214,7 @@ public class Engine
       memoryResource = loadFromMemory(key, isMemoryCacheable, startTime);
 
       if (memoryResource == null) {
+        //如果内存中没有， 则创建engineJob（decodeJob的回调，管理下载过程以及状态）和创建解析工作对象DecodeJob
         return waitForExistingOrStartNewJob(
             glideContext,
             model,
@@ -259,6 +270,7 @@ public class Engine
       EngineKey key,
       long startTime) {
 
+    //在弱引用和内存缓存中，都没有找到图片，就执行任务。这个任务，会在磁盘缓存中查找，因为磁盘读取耗时较大，所以放在任务线程中
     EngineJob<?> current = jobs.get(key, onlyRetrieveFromCache);
     if (current != null) {
       current.addCallback(cb, callbackExecutor);
@@ -268,6 +280,7 @@ public class Engine
       return new LoadStatus(cb, current);
     }
 
+    //创建一个执行工作，它里面有很多Executor，其它线程可以放进来执行
     EngineJob<R> engineJob =
         engineJobFactory.build(
             key,
@@ -276,6 +289,7 @@ public class Engine
             useAnimationPool,
             onlyRetrieveFromCache);
 
+    //创建一个解码工作，用于处理图片的
     DecodeJob<R> decodeJob =
         decodeJobFactory.build(
             glideContext,
@@ -294,10 +308,11 @@ public class Engine
             onlyRetrieveFromCache,
             options,
             engineJob);
-
+    // 放在Jobs内部维护的HashMap中
     jobs.put(key, engineJob);
-
+    // 注册ResourceCallback接口，就是在成功获取图片后，需要显示到ImageView 上的回调，这个接口回调到SingleRequest中
     engineJob.addCallback(cb, callbackExecutor);
+    //开始执行
     engineJob.start(decodeJob);
 
     if (VERBOSE_IS_LOGGABLE) {
@@ -307,12 +322,12 @@ public class Engine
   }
 
   @Nullable
-  private EngineResource<?> loadFromMemory(
-      EngineKey key, boolean isMemoryCacheable, long startTime) {
+  private EngineResource<?> loadFromMemory(EngineKey key, boolean isMemoryCacheable, long startTime) {
     if (!isMemoryCacheable) {
       return null;
     }
 
+    //检查弱引用缓存是否有目标图片
     EngineResource<?> active = loadFromActiveResources(key);
     if (active != null) {
       if (VERBOSE_IS_LOGGABLE) {
@@ -321,6 +336,7 @@ public class Engine
       return active;
     }
 
+    //检查内存的弱引用缓存是否有目标图片
     EngineResource<?> cached = loadFromCache(key);
     if (cached != null) {
       if (VERBOSE_IS_LOGGABLE) {

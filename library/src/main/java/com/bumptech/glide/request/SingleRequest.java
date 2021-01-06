@@ -240,6 +240,7 @@ public final class SingleRequest<R> implements Request, SizeReadyCallback, Resou
       // that the view size has changed will need to explicitly clear the View or Target before
       // starting the new load.
       if (status == Status.COMPLETE) {
+        //把数据显示到ImageView 上
         onResourceReady(
             resource, DataSource.MEMORY_CACHE, /* isLoadedFromAlternateCacheKey= */ false);
         return;
@@ -250,13 +251,17 @@ public final class SingleRequest<R> implements Request, SizeReadyCallback, Resou
 
       status = Status.WAITING_FOR_SIZE;
       if (Util.isValidDimensions(overrideWidth, overrideHeight)) {
+        // 当使用override() API为图片指定了一个固定的宽高时直接执行onSizeReady，
+        // 最终的核心处理位于onSizeReady
         onSizeReady(overrideWidth, overrideHeight);
       } else {
+        //没有指定宽高
+        //根据imageView的宽高算出图片的宽高，最终也会走到onSizeReady
         target.getSize(this);
       }
 
-      if ((status == Status.RUNNING || status == Status.WAITING_FOR_SIZE)
-          && canNotifyStatusChanged()) {
+      if ((status == Status.RUNNING || status == Status.WAITING_FOR_SIZE) && canNotifyStatusChanged()) {
+        // 预先加载设置的缩略图
         target.onLoadStarted(getPlaceholderDrawable());
       }
       if (IS_VERBOSE_LOGGABLE) {
@@ -433,6 +438,8 @@ public final class SingleRequest<R> implements Request, SizeReadyCallback, Resou
   }
 
   /**
+   * SizeReadyCallback
+   *
    * A callback method that should never be invoked directly.
    * onSizeReady 方法算是用来构建参数列表并且调用 Engine#load 方法的
    */
@@ -446,8 +453,9 @@ public final class SingleRequest<R> implements Request, SizeReadyCallback, Resou
       if (status != Status.WAITING_FOR_SIZE) {
         return;
       }
+      //设置状态为正在请求
       status = Status.RUNNING;
-
+      //设置宽高
       float sizeMultiplier = requestOptions.getSizeMultiplier();
       this.width = maybeApplySizeMultiplier(width, sizeMultiplier);
       this.height = maybeApplySizeMultiplier(height, sizeMultiplier);
@@ -455,6 +463,8 @@ public final class SingleRequest<R> implements Request, SizeReadyCallback, Resou
       if (IS_VERBOSE_LOGGABLE) {
         logV("finished setup for calling load in " + LogTime.getElapsedMillis(startTime));
       }
+      //engine是负责加载，管理活动和缓存资源的引擎类
+      //这里的engine 是在创建Glide的时候，build() 创建的，engine封装了各种Executor，内存缓存等
       loadStatus =
           engine.load(
               glideContext,

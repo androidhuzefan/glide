@@ -31,8 +31,7 @@ public class DiskLruCacheFactory implements DiskCache.Factory {
         diskCacheSize);
   }
 
-  public DiskLruCacheFactory(
-      final String diskCacheFolder, final String diskCacheName, long diskCacheSize) {
+  public DiskLruCacheFactory(final String diskCacheFolder, final String diskCacheName, long diskCacheSize) {
     this(
         new CacheDirectoryGetter() {
           @Override

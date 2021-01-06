@@ -31,9 +31,9 @@ import java.util.Map;
  *
  * DecodeJob 实现了 Runnable 接口，由 EngineJob 将其运行在指定线程池中
  *
- * 首次加载一张图片资源时，资源加载完成后会先存入到本地缓存文件中，然后再从文件中获取
- *
  * 会根据资源类型去 Glide 中获取已注册的 DataFetcher ，然后通过 DataFetcher#loadData 方法获取原始数据，获取完成后使用 Encoder 将数据存入磁盘缓存文件中，同时使用对应的解码器将原始数据转换为相应的资源文件
+ *
+ * 首次加载一张图片资源时，资源加载完成后会先存入到本地缓存文件中，然后再从文件中获取
  *
  * A class responsible for decoding resources either from cached data or from the original source
  * and applying transformations and transcodes.
@@ -145,6 +145,7 @@ class DecodeJob<R>
    * will always decode from source.
    */
   boolean willDecodeFromCache() {
+    //获取下一个阶段，应该从哪里获取数据
     Stage firstStage = getNextStage(Stage.INITIALIZE);
     return firstStage == Stage.RESOURCE_CACHE || firstStage == Stage.DATA_CACHE;
   }
@@ -277,10 +278,15 @@ class DecodeJob<R>
     }
   }
 
+  /**
+   * 初始化之后第一次运行时 runReason 为 INITIALIZE
+   */
   private void runWrapped() {
     switch (runReason) {
       case INITIALIZE:
+        //获取下一阶段的状态
         stage = getNextStage(Stage.INITIALIZE);
+        //根据下一阶段状态，判断具体有哪个类执行
         currentGenerator = getNextGenerator();
         runGenerators();
         break;
@@ -297,10 +303,13 @@ class DecodeJob<R>
 
   private DataFetcherGenerator getNextGenerator() {
     switch (stage) {
+      //从磁盘缓存获取资源数据
       case RESOURCE_CACHE:
         return new ResourceCacheGenerator(decodeHelper, this);
+      //从磁盘缓存获取源数据
       case DATA_CACHE:
         return new DataCacheGenerator(decodeHelper, this);
+      //从数据源获取数据，例如 从服务器获取数据
       case SOURCE:
         return new SourceGenerator(decodeHelper, this);
       case FINISHED:
@@ -316,6 +325,7 @@ class DecodeJob<R>
     boolean isStarted = false;
     while (!isCancelled
         && currentGenerator != null
+        //这里执行当前的Generator
         && !(isStarted = currentGenerator.startNext())) {
       stage = getNextStage(stage);
       currentGenerator = getNextGenerator();
@@ -344,6 +354,7 @@ class DecodeJob<R>
   private void notifyComplete(
       Resource<R> resource, DataSource dataSource, boolean isLoadedFromAlternateCacheKey) {
     setNotifiedOrThrow();
+    // 这个callback 就是 EngineJob对象，  是在创建Decodejob的时候，传递进来
     callback.onResourceReady(resource, dataSource, isLoadedFromAlternateCacheKey);
   }
 
@@ -359,15 +370,18 @@ class DecodeJob<R>
   private Stage getNextStage(Stage current) {
     switch (current) {
       case INITIALIZE:
+        //当前是初始阶段，则看磁盘缓存策略，是否可以在磁盘中获取资源缓存（也就是解析后的缓存）
         return diskCacheStrategy.decodeCachedResource()
             ? Stage.RESOURCE_CACHE
             : getNextStage(Stage.RESOURCE_CACHE);
       case RESOURCE_CACHE:
+        //当前是资源缓存，看下一步能不能从磁盘缓存中获取源数据缓存
         return diskCacheStrategy.decodeCachedData()
             ? Stage.DATA_CACHE
             : getNextStage(Stage.DATA_CACHE);
       case DATA_CACHE:
         // Skip loading from source if the user opted to only retrieve the resource from cache.
+        //当前是数据缓存，下一步能不能从源数据处获取数据，例如从服务器获取
         return onlyRetrieveFromCache ? Stage.FINISHED : Stage.SOURCE;
       case SOURCE:
       case FINISHED:
@@ -384,8 +398,7 @@ class DecodeJob<R>
   }
 
   @Override
-  public void onDataFetcherReady(
-      Key sourceKey, Object data, DataFetcher<?> fetcher, DataSource dataSource, Key attemptedKey) {
+  public void onDataFetcherReady(Key sourceKey, Object data, DataFetcher<?> fetcher, DataSource dataSource, Key attemptedKey) {
     this.currentSourceKey = sourceKey;
     this.currentData = data;
     this.currentFetcher = fetcher;
@@ -395,6 +408,7 @@ class DecodeJob<R>
 
     if (Thread.currentThread() != currentThread) {
       runReason = RunReason.DECODE_DATA;
+      //EngineJob
       callback.reschedule(this);
     } else {
       GlideTrace.beginSection("DecodeJob.decodeFromRetrievedData");
@@ -435,20 +449,22 @@ class DecodeJob<R>
     }
     Resource<R> resource = null;
     try {
+      // 从数据中解码得到资源
       resource = decodeFromData(currentFetcher, currentData, currentDataSource);
     } catch (GlideException e) {
       e.setLoggingDetails(currentAttemptingKey, currentDataSource);
       throwables.add(e);
     }
     if (resource != null) {
+      // 通知编码和发布，最终得到的Resource<Bitmap>对象
       notifyEncodeAndRelease(resource, currentDataSource, isLoadingFromAlternateCacheKey);
     } else {
       runGenerators();
     }
   }
 
-  private void notifyEncodeAndRelease(
-      Resource<R> resource, DataSource dataSource, boolean isLoadedFromAlternateCacheKey) {
+  //显示到指定的ImageView控件上
+  private void notifyEncodeAndRelease(Resource<R> resource, DataSource dataSource, boolean isLoadedFromAlternateCacheKey) {
     if (resource instanceof Initializable) {
       ((Initializable) resource).initialize();
     }
@@ -460,11 +476,14 @@ class DecodeJob<R>
       result = lockedResource;
     }
 
+    // 通知主线程回调，加载图片
     notifyComplete(result, dataSource, isLoadedFromAlternateCacheKey);
 
     stage = Stage.ENCODE;
     try {
+      //是否可以将转换的图片缓存
       if (deferredEncodeManager.hasResourceToEncode()) {
+        //磁盘缓存入口
         deferredEncodeManager.encode(diskCacheProvider, options);
       }
     } finally {
@@ -495,8 +514,10 @@ class DecodeJob<R>
   }
 
   @SuppressWarnings("unchecked")
-  private <Data> Resource<R> decodeFromFetcher(Data data, DataSource dataSource)
-      throws GlideException {
+  // 本例中是 Stream 流，从http请求获取到的
+  private <Data> Resource<R> decodeFromFetcher(Data data, DataSource dataSource) throws GlideException {
+    // 获取一个LoadPath，它是根据数据类型（这里是stream），ResourceDecoder（资源解码），transcoder（资源转码）
+    // 从这些参数可以看出，最终把数据流转为Bitmap 或Drawable ，就是在LoadPath中进行的，这里是指DecodePath
     LoadPath<Data, ?, R> path = decodeHelper.getLoadPath((Class<Data>) data.getClass());
     return runLoadPath(data, dataSource, path);
   }
@@ -534,6 +555,7 @@ class DecodeJob<R>
     DataRewinder<Data> rewinder = glideContext.getRegistry().getRewinder(data);
     try {
       // ResourceType in DecodeCallback below is required for compilation to work with gradle.
+      // 执行LoadPath 的load ，进行解码，转换操作
       return path.load(
           rewinder, options, width, height, new DecodeCallback<ResourceType>(dataSource));
     } finally {
@@ -723,8 +745,7 @@ class DecodeJob<R>
 
   interface Callback<R> {
 
-    void onResourceReady(
-        Resource<R> resource, DataSource dataSource, boolean isLoadedFromAlternateCacheKey);
+    void onResourceReady(Resource<R> resource, DataSource dataSource, boolean isLoadedFromAlternateCacheKey);
 
     void onLoadFailed(GlideException e);
 

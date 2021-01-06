@@ -39,6 +39,7 @@ public class RequestTracker {
   /** Starts tracking the given request. */
   public void runRequest(@NonNull Request request) {
     requests.add(request);
+    //填充目标（ImageView）所在的activity Fragment stop后，isPaused就是true
     if (!isPaused) {
       request.begin();
     } else {
@@ -46,6 +47,7 @@ public class RequestTracker {
       if (Log.isLoggable(TAG, Log.VERBOSE)) {
         Log.v(TAG, "Paused, delaying request");
       }
+      //加入待执行列表
       pendingRequests.add(request);
     }
   }
@@ -56,8 +58,10 @@ public class RequestTracker {
   }
 
   /**
-   * Stops tracking the given request, clears, and recycles it, and returns {@code true} if the
-   * request was removed or invalid or {@code false} if the request was not found.
+   * Stops tracking the given request, clears, and recycles it, and
+   * returns {@code true} if the
+   * request was removed or invalid or
+   * {@code false} if the request was not found.
    */
   public boolean clearAndRemove(@Nullable Request request) {
     if (request == null) {

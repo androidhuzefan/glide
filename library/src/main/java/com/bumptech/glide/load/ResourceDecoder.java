@@ -6,6 +6,10 @@ import com.bumptech.glide.load.engine.Resource;
 import java.io.IOException;
 
 /**
+ * 将ModelLoader加载出来的数据，进行解码，解码成Bitmap，或者BitmapDrawable之类的
+ *
+ * Glide中常用的Decoder有两个，其他都是将这两个Decoder进行包装，它们分别是ByteBufferBitmapDecoder和StreamBitmapDecoder
+ *
  * 与 Encoder 对应，数据解码器，用来将原始数据解码成相应的数据类型，针对不同的请求实现类都不同，例如通过网络请求最终获取到的是一个 InputStream，经过 ByteBufferBitmapDecoder 解码后再生成一个 Bitmap
  *
  * 解码时会根据 option 以及图片大小（如果有的话）按需加载 Bitmap
@@ -26,7 +30,7 @@ public interface ResourceDecoder<T, Z> {
    * <p>Decoders should make a best effort attempt to quickly determine if they are likely to be
    * able to decode data, but should not attempt to completely read the given data. A typical
    * implementation would check the file headers verify they match content the decoder expects to
-   * handle (i.e. a GIF decoder should verify that the image contains the GIF header block.
+   * handle (i.e. a GIF decoder should verify that the image contains the GIF header block.）
    *
    * <p>Decoders that return {@code true} from {@code handles} may still return {@code null} from
    * {@link #decode(Object, int, int, Options)} if the data is partial or formatted incorrectly.

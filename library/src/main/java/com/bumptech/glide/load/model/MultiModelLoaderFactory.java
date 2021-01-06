@@ -125,8 +125,7 @@ public class MultiModelLoaderFactory {
   }
 
   @NonNull
-  public synchronized <Model, Data> ModelLoader<Model, Data> build(
-      @NonNull Class<Model> modelClass, @NonNull Class<Data> dataClass) {
+  public synchronized <Model, Data> ModelLoader<Model, Data> build(@NonNull Class<Model> modelClass, @NonNull Class<Data> dataClass) {
     try {
       List<ModelLoader<Model, Data>> loaders = new ArrayList<>();
       boolean ignoredAnyEntries = false;

@@ -4,7 +4,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 
 /**
- * 考虑这样的一个场景，当我们加载失败时我可能希望继续去通过网络或者别的什么加载另一张图片
+ * 考虑这样的一个场景，当我们加载失败时我可能希望继续去通过网络加载别的另一张图片
  *
  * Runs a single primary {@link Request} until it completes and then a fallback error request only
  * if the single primary request fails.
@@ -12,10 +12,10 @@ import androidx.annotation.Nullable;
 public final class ErrorRequestCoordinator implements RequestCoordinator, Request {
 
   private final Object requestLock;
-  @Nullable private final RequestCoordinator parent;
+  @Nullable private final RequestCoordinator parent;  //上一个请求
 
-  private volatile Request primary;
-  private volatile Request error;
+  private volatile Request primary; //当前请求
+  private volatile Request error; //下一个请求
 
   @GuardedBy("requestLock")
   private RequestState primaryState = RequestState.CLEARED;

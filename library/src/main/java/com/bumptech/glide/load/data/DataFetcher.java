@@ -44,6 +44,8 @@ public interface DataFetcher<T> {
   }
 
   /**
+   * InputStream, byte[], File etc
+   *
    * 内部实现就是通过 HttpUrlConnect 发起网络请求，或者打开一个文件，或者使用 AssetManager 打开一个资源等等
    *
    * Fetch data from which a resource can be decoded.

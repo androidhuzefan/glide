@@ -153,8 +153,7 @@ public class RequestBuilder<TranscodeType> extends BaseRequestOptions<RequestBui
    */
   @NonNull
   @CheckResult
-  public RequestBuilder<TranscodeType> transition(
-      @NonNull TransitionOptions<?, ? super TranscodeType> transitionOptions) {
+  public RequestBuilder<TranscodeType> transition(@NonNull TransitionOptions<?, ? super TranscodeType> transitionOptions) {
     this.transitionOptions = Preconditions.checkNotNull(transitionOptions);
     isDefaultTransitionOptionsSet = false;
     return this;
@@ -174,8 +173,7 @@ public class RequestBuilder<TranscodeType> extends BaseRequestOptions<RequestBui
   @NonNull
   @CheckResult
   @SuppressWarnings("unchecked")
-  public RequestBuilder<TranscodeType> listener(
-      @Nullable RequestListener<TranscodeType> requestListener) {
+  public RequestBuilder<TranscodeType> listener(@Nullable RequestListener<TranscodeType> requestListener) {
     this.requestListeners = null;
     return addListener(requestListener);
   }
@@ -189,8 +187,7 @@ public class RequestBuilder<TranscodeType> extends BaseRequestOptions<RequestBui
    */
   @NonNull
   @CheckResult
-  public RequestBuilder<TranscodeType> addListener(
-      @Nullable RequestListener<TranscodeType> requestListener) {
+  public RequestBuilder<TranscodeType> addListener(@Nullable RequestListener<TranscodeType> requestListener) {
     if (requestListener != null) {
       if (this.requestListeners == null) {
         this.requestListeners = new ArrayList<>();
@@ -251,7 +248,6 @@ public class RequestBuilder<TranscodeType> extends BaseRequestOptions<RequestBui
   public RequestBuilder<TranscodeType> thumbnail(
       @Nullable RequestBuilder<TranscodeType> thumbnailRequest) {
     this.thumbnailBuilder = thumbnailRequest;
-
     return this;
   }
 
@@ -409,6 +405,7 @@ public class RequestBuilder<TranscodeType> extends BaseRequestOptions<RequestBui
   @NonNull
   private RequestBuilder<TranscodeType> loadGeneric(@Nullable Object model) {
     this.model = model;
+    // 记录url已设置
     isModelSet = true;
     return this;
   }
@@ -657,11 +654,14 @@ public class RequestBuilder<TranscodeType> extends BaseRequestOptions<RequestBui
       Executor callbackExecutor) {
     Preconditions.checkNotNull(target);
     if (!isModelSet) {
+      //调用过load 函数，这个变量是true
       throw new IllegalArgumentException("You must call #load() before calling #into()");
     }
 
+    //创建请求，用于显示图片。图片有可能是从缓存中，也有可能是从网络获取
     Request request = buildRequest(target, targetListener, options, callbackExecutor);
 
+    //获取该目标 对应的request，和当前的request进行比较
     Request previous = target.getRequest();
     if (request.isEquivalentTo(previous)
         && !isSkipMemoryCacheWithCompletePreviousRequest(options, previous)) {
@@ -680,6 +680,7 @@ public class RequestBuilder<TranscodeType> extends BaseRequestOptions<RequestBui
 
     requestManager.clear(target);
     target.setRequest(request);
+    //进行图片请求操作
     requestManager.track(target, request);
 
     return target;
@@ -710,6 +711,7 @@ public class RequestBuilder<TranscodeType> extends BaseRequestOptions<RequestBui
     Util.assertMainThread();
     Preconditions.checkNotNull(view);
 
+    //设置不同缩放类型的baseRequestOptions
     BaseRequestOptions<?> requestOptions = this;
     if (!requestOptions.isTransformationSet()
         && requestOptions.isTransformationAllowed()
@@ -717,20 +719,19 @@ public class RequestBuilder<TranscodeType> extends BaseRequestOptions<RequestBui
       // Clone in this method so that if we use this RequestBuilder to load into a View and then
       // into a different target, we don't retain the transformation applied based on the previous
       // View's scale type.
+      //根据ImageView 的ScaleType 类型，进行参数设置，注意这里是clone 一个新的对象，在新对象上操作的
       switch (view.getScaleType()) {
         case CENTER_CROP:
           requestOptions = requestOptions.clone().optionalCenterCrop();
           break;
         case CENTER_INSIDE:
+        case FIT_XY:
           requestOptions = requestOptions.clone().optionalCenterInside();
           break;
         case FIT_CENTER:
         case FIT_START:
         case FIT_END:
           requestOptions = requestOptions.clone().optionalFitCenter();
-          break;
-        case FIT_XY:
-          requestOptions = requestOptions.clone().optionalCenterInside();
           break;
         case CENTER:
         case MATRIX:
@@ -740,9 +741,11 @@ public class RequestBuilder<TranscodeType> extends BaseRequestOptions<RequestBui
     }
 
     return into(
+        //这个transcodeClass是指的drawable或bitmap,就是前面as函数传入的类型
         glideContext.buildImageViewTarget(view, transcodeClass),
         /*targetListener=*/ null,
         requestOptions,
+        //在主线程，也就是通过 主线程的Handler 执行
         Executors.mainThreadExecutor());
   }
 
@@ -915,12 +918,15 @@ public class RequestBuilder<TranscodeType> extends BaseRequestOptions<RequestBui
       Executor callbackExecutor) {
 
     // Build the ErrorRequestCoordinator first if necessary so we can update parentCoordinator.
+    // 创建错误的Request
     ErrorRequestCoordinator errorRequestCoordinator = null;
+    //判断是否设置了，发生错误时，显示的图片
     if (errorBuilder != null) {
       errorRequestCoordinator = new ErrorRequestCoordinator(requestLock, parentCoordinator);
       parentCoordinator = errorRequestCoordinator;
     }
 
+    //创建缩略图和原图的Request
     Request mainRequest =
         buildThumbnailRequestRecursive(
             requestLock,
@@ -945,6 +951,7 @@ public class RequestBuilder<TranscodeType> extends BaseRequestOptions<RequestBui
       errorOverrideHeight = requestOptions.getOverrideHeight();
     }
 
+    //创建错误时图片的内容
     Request errorRequest =
         errorBuilder.buildRequestRecursive(
             requestLock,
@@ -957,6 +964,8 @@ public class RequestBuilder<TranscodeType> extends BaseRequestOptions<RequestBui
             errorOverrideHeight,
             errorBuilder,
             callbackExecutor);
+    //把这两个请求，都传进errorRequestCoordinator中
+    //表示请求的下一个请求是errorRequest
     errorRequestCoordinator.setRequests(mainRequest, errorRequest);
     return errorRequestCoordinator;
   }
@@ -1004,6 +1013,7 @@ public class RequestBuilder<TranscodeType> extends BaseRequestOptions<RequestBui
 
       ThumbnailRequestCoordinator coordinator =
           new ThumbnailRequestCoordinator(requestLock, parentCoordinator);
+      //primary创建一个Request
       Request fullRequest =
           obtainRequest(
               requestLock,
@@ -1018,6 +1028,7 @@ public class RequestBuilder<TranscodeType> extends BaseRequestOptions<RequestBui
               callbackExecutor);
       isThumbnailBuilt = true;
       // Recursively generate thumbnail requests.
+      //因为调用.thumbnail 传递GlideRequest 参数时，这个请求也可能设置了缩略图和错误图（也就是缩略图的缩略图），所以这里进行递归创建Request
       Request thumbRequest =
           thumbnailBuilder.buildRequestRecursive(
               requestLock,
@@ -1034,6 +1045,7 @@ public class RequestBuilder<TranscodeType> extends BaseRequestOptions<RequestBui
       coordinator.setRequests(fullRequest, thumbRequest);
       return coordinator;
     } else if (thumbSizeMultiplier != null) {
+      // 设置了缩略图比例, 不需要递归建立缩略图请求
       // Base case: thumbnail multiplier generates a thumbnail request, but cannot recurse.
       ThumbnailRequestCoordinator coordinator =
           new ThumbnailRequestCoordinator(requestLock, parentCoordinator);
@@ -1094,6 +1106,7 @@ public class RequestBuilder<TranscodeType> extends BaseRequestOptions<RequestBui
       int overrideWidth,
       int overrideHeight,
       Executor callbackExecutor) {
+    //创建SingleRequest，这里通过obtain 从工厂池中获取，有对象复用功能
     return SingleRequest.obtain(
         context,
         glideContext,

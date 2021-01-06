@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import java.io.IOException;
 
 /**
+ * Rewinder担任的是ModelLoader到ResourceDecoder的桥梁的角色，DecodeJob将ModelLoader获得的数据，构造出DataRewinder，然后使用Rewinder将数据传给ResourceDecoder进行解码
+ *
  * Responsible for rewinding a stream like data types.
  *
  * @param <T> The stream like data type that can be rewound.

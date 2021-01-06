@@ -244,6 +244,7 @@ public final class Downsampler {
         options.get(ALLOW_HARDWARE_CONFIG) != null && options.get(ALLOW_HARDWARE_CONFIG);
 
     try {
+      //解析得到bitmap
       Bitmap result =
           decodeFromWrappedStreams(
               imageReader,
@@ -256,6 +257,7 @@ public final class Downsampler {
               requestedHeight,
               fixBitmapToRequestedDimensions,
               callbacks);
+      //把bitmap 封装进Resource ，返回Resource 对象
       return BitmapResource.obtain(result, bitmapPool);
     } finally {
       releaseOptions(bitmapFactoryOptions);
@@ -263,6 +265,7 @@ public final class Downsampler {
     }
   }
 
+  //涉及bitmap在bitmapPool中的复用，目的是 如果bitmapPool 有可用的bitmap，就复用该bitmap。避免为Bitmap 分配内存，导致内存抖动
   private Bitmap decodeFromWrappedStreams(
       ImageReader imageReader,
       BitmapFactory.Options options,
@@ -305,6 +308,7 @@ public final class Downsampler {
 
     ImageType imageType = imageReader.getImageType();
 
+    //计算缩放比例，结果会体现在options参数中
     calculateScaling(
         imageType,
         imageReader,
@@ -326,7 +330,10 @@ public final class Downsampler {
         targetWidth,
         targetHeight);
 
+    //计算sdk版本是否大于KITKAT，在该系统及之前 图片复用仅支持大小相同的位图
     boolean isKitKatOrGreater = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+    //下面的判断，来计算是否在BitmapPool中 是否有bitmap可以被复用，如果有就把bitmap 设置到options.inBitmap
+    //这样在根据options 去解析生成bitmap的时候，就不需要再次分配内存了，避免了内存抖动
     // Prior to KitKat, the inBitmap size must exactly match the size of the bitmap we're decoding.
     if ((options.inSampleSize == 1 || isKitKatOrGreater) && shouldUsePool(imageType)) {
       int expectedWidth;
@@ -372,6 +379,7 @@ public final class Downsampler {
       // If this isn't an image, or BitmapFactory was unable to parse the size, width and height
       // will be -1 here.
       if (expectedWidth > 0 && expectedHeight > 0) {
+        //该函数会在bitmapPool中查找符合大小的bitmap ，如果找到了就设置给inBitmap
         setInBitmap(options, bitmapPool, expectedWidth, expectedHeight);
       }
     }

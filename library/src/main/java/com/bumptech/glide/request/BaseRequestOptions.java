@@ -667,7 +667,7 @@ public abstract class BaseRequestOptions<T extends BaseRequestOptions<T>> implem
    * Sets the {@link DownsampleStrategy} to use when decoding {@link Bitmap Bitmaps} using {@link
    * Downsampler}.
    *
-   * <p>This is a component option specific to {@link Downsampler}. If the defautlt Bitmap decoder
+   * <p>This is a component option specific to {@link Downsampler}. If the default Bitmap decoder
    * is replaced or skipped because of your configuration, this option may be ignored.
    */
   @NonNull
@@ -847,14 +847,12 @@ public abstract class BaseRequestOptions<T extends BaseRequestOptions<T>> implem
   }
 
   @NonNull
-  private T scaleOnlyTransform(
-      @NonNull DownsampleStrategy strategy, @NonNull Transformation<Bitmap> transformation) {
+  private T scaleOnlyTransform(@NonNull DownsampleStrategy strategy, @NonNull Transformation<Bitmap> transformation) {
     return scaleOnlyTransform(strategy, transformation, true /*isTransformationRequired*/);
   }
 
   @NonNull
-  private T optionalScaleOnlyTransform(
-      @NonNull DownsampleStrategy strategy, @NonNull Transformation<Bitmap> transformation) {
+  private T optionalScaleOnlyTransform(@NonNull DownsampleStrategy strategy, @NonNull Transformation<Bitmap> transformation) {
     return scaleOnlyTransform(strategy, transformation, false /*isTransformationRequired*/);
   }
 

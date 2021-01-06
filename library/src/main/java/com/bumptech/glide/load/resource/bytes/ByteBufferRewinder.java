@@ -31,7 +31,7 @@ public class ByteBufferRewinder implements DataRewinder<ByteBuffer> {
 
     @NonNull
     @Override
-    public DataRewinder<ByteBuffer> build(ByteBuffer data) {
+    public DataRewinder<ByteBuffer> build(@NonNull ByteBuffer data) {
       return new ByteBufferRewinder(data);
     }
 

@@ -127,8 +127,11 @@ class EngineJob<R> implements DecodeJob.Callback<R>, Poolable {
     return this;
   }
 
+  //内部开启线程去请求数据
   public synchronized void start(DecodeJob<R> decodeJob) {
     this.decodeJob = decodeJob;
+    //若能从磁盘缓存获取数据，就使用diskCacheExecutor
+    //否则在根据其他的条件判断使用哪个Executor
     GlideExecutor executor =
         decodeJob.willDecodeFromCache() ? diskCacheExecutor : getActiveSourceExecutor();
     executor.execute(decodeJob);
@@ -155,6 +158,7 @@ class EngineJob<R> implements DecodeJob.Callback<R>, Poolable {
   @GuardedBy("this")
   void callCallbackOnResourceReady(ResourceCallback cb) {
     try {
+      //cb 就是SingleRequest 对象，所以下面去它里面看onResourceReady
       // This is overly broad, some Glide code is actually called here, but it's much
       // simpler to encapsulate here than to do so at the actual call point in the
       // Request implementation.
@@ -229,6 +233,7 @@ class EngineJob<R> implements DecodeJob.Callback<R>, Poolable {
   })
   @Synthetic
   void notifyCallbacksOfResult() {
+    //这个类是重点
     ResourceCallbacksAndExecutors copy;
     Key localKey;
     EngineResource<?> localResource;
@@ -251,15 +256,17 @@ class EngineJob<R> implements DecodeJob.Callback<R>, Poolable {
       // a lock here so that any newly added callback that executes before the next locked section
       // below can't recycle the resource before we call the callbacks.
       hasResource = true;
+      //cbs 在类初始化的时候，就被赋值
+      //engineJob.addCallback(cb, callbackExecutor); 这个cb 参数是SingleRequest 的对象实现了接口ResourceCallback
       copy = cbs.copy();
       incrementPendingCallbacks(copy.size() + 1);
 
       localKey = key;
       localResource = engineResource;
     }
-
+    //这里就是把解析后的图片，也就是即将要显示出来的图片，缓存到弱引用缓存中
     engineJobListener.onEngineJobComplete(this, localKey, localResource);
-
+    //遍历每一个回调接口，entry.cb 就是SingleRequest 对象，执行接口ResourceCallback
     for (final ResourceCallbackAndExecutor entry : copy) {
       entry.executor.execute(new CallResourceReady(entry.cb));
     }

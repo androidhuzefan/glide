@@ -176,16 +176,14 @@ public abstract class DownsampleStrategy {
     CenterOutside() {}
 
     @Override
-    public float getScaleFactor(
-        int sourceWidth, int sourceHeight, int requestedWidth, int requestedHeight) {
+    public float getScaleFactor(int sourceWidth, int sourceHeight, int requestedWidth, int requestedHeight) {
       float widthPercentage = requestedWidth / (float) sourceWidth;
       float heightPercentage = requestedHeight / (float) sourceHeight;
       return Math.max(widthPercentage, heightPercentage);
     }
 
     @Override
-    public SampleSizeRounding getSampleSizeRounding(
-        int sourceWidth, int sourceHeight, int requestedWidth, int requestedHeight) {
+    public SampleSizeRounding getSampleSizeRounding(int sourceWidth, int sourceHeight, int requestedWidth, int requestedHeight) {
       return SampleSizeRounding.QUALITY;
     }
   }

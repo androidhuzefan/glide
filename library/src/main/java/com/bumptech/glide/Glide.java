@@ -228,6 +228,8 @@ public class Glide implements ComponentCallbacks2 {
 
   @VisibleForTesting
   public static void init(@NonNull Context context, @NonNull GlideBuilder builder) {
+    //通过反射找到GeneratedAppGlideModuleImpl 类，如果能找到，就说明自定义了GlideModule
+    //那么就需要在合适的地方调用applyOptions、registerComponents 来实现自定义的功能
     GeneratedAppGlideModule annotationGeneratedModule = getAnnotationGeneratedGlideModules(context);
     synchronized (Glide.class) {
       if (Glide.glide != null) {
@@ -280,6 +282,7 @@ public class Glide implements ComponentCallbacks2 {
     List<com.bumptech.glide.module.GlideModule> manifestModules = Collections.emptyList();
     //清单和v4注解并存的情况
     if (annotationGeneratedModule == null || annotationGeneratedModule.isManifestParsingEnabled()) {
+      // 从AndroidManifest.xml 获取自定义的GlideModule（这是另外一种自定义GlideModule的方式）
       //Glide V3
       manifestModules = new ManifestParser(applicationContext).parse();
     }
@@ -305,23 +308,27 @@ public class Glide implements ComponentCallbacks2 {
         Log.d(TAG, "Discovered GlideModule from manifest: " + glideModule.getClass());
       }
     }
-
+    // 获取工厂，用于创建RequestManager（该工厂用于，如果with（）参数传递的是application）
     RequestManagerRetriever.RequestManagerFactory factory =
         annotationGeneratedModule != null
             ? annotationGeneratedModule.getRequestManagerFactory()
             : null;
     builder.setRequestManagerFactory(factory);
     //v3
+    //执行用户在 manifest 中配置的 GlideModule 接口中的方法
     for (com.bumptech.glide.module.GlideModule module : manifestModules) {
       module.applyOptions(applicationContext, builder);
     }
     //v4 更改Glide配置
+    //执行使用注解配置的GlideModule 接口中的方法
     if (annotationGeneratedModule != null) {
       annotationGeneratedModule.applyOptions(applicationContext, builder);
     }
     //构建Glide
     Glide glide = builder.build(applicationContext);
     //v3
+    //下面registerComponents 方法的执行，需要传递Registry对象，而该对象是在创建Glide 的时候，被赋值，并设置一系列的参数
+    //执行用户在 manifest 中配置的 GlideModule 接口中的registerComponents 方法
     for (com.bumptech.glide.module.GlideModule module : manifestModules) {
       try {
         module.registerComponents(applicationContext, glide, glide.registry);
@@ -336,11 +343,13 @@ public class Glide implements ComponentCallbacks2 {
       }
     }
     //v4  加入替换Glide的组件的逻辑
+    //执行用户在 manifest 中配置的 GlideModule 接口中的registerComponents 方法
     if (annotationGeneratedModule != null) {
       annotationGeneratedModule.registerComponents(applicationContext, glide, glide.registry);
     }
     //注册和注销 ComponentCallbacks2回调接口
     applicationContext.registerComponentCallbacks(glide);
+    //向单例赋值
     Glide.glide = glide;
   }
 
@@ -438,8 +447,8 @@ public class Glide implements ComponentCallbacks2 {
       streamBitmapDecoder = new InputStreamBitmapImageDecoderResourceDecoder();
       byteBufferBitmapDecoder = new ByteBufferBitmapImageDecoderResourceDecoder();
     } else {
-      byteBufferBitmapDecoder = new ByteBufferBitmapDecoder(downsampler);
       streamBitmapDecoder = new StreamBitmapDecoder(downsampler, arrayPool);
+      byteBufferBitmapDecoder = new ByteBufferBitmapDecoder(downsampler);
     }
 
     ResourceDrawableDecoder resourceDrawableDecoder = new ResourceDrawableDecoder(context);
@@ -456,7 +465,8 @@ public class Glide implements ComponentCallbacks2 {
     GifDrawableBytesTranscoder gifDrawableBytesTranscoder = new GifDrawableBytesTranscoder();
 
     ContentResolver contentResolver = context.getContentResolver();
-    //register()方法中传入的参数表示Glide支持使用哪种参数类型来加载图片，以及如何去处理这种类型的图片加载
+    //添加各种Encoder（把数据存为File）、ResourceDecoder（把数据从类型A转为类型B）、ModelLoaderFactory
+    //(用于创建ModelLoader，它用于将任意复杂的数据模型转换为可由 DataFetcher 获取模型所代表的资源数据的具体数据类型。用来加载资源的。）
     registry
         .append(ByteBuffer.class, new ByteBufferEncoder())
         .append(InputStream.class, new StreamEncoder(arrayPool))

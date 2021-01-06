@@ -141,6 +141,7 @@ final class DecodeHelper<Transcode> {
     return getLoadPath(dataClass) != null;
   }
 
+  // 获取一个LoadPath，它是根据数据类型，ResourceDecoder（资源解码），transcoder（资源转码）
   <Data> LoadPath<Data, ?, Transcode> getLoadPath(Class<Data> dataClass) {
     return glideContext.getRegistry().getLoadPath(dataClass, resourceClass, transcodeClass);
   }
@@ -204,10 +205,12 @@ final class DecodeHelper<Transcode> {
     if (!isLoadDataSet) {
       isLoadDataSet = true;
       loadData.clear();
+      //获取已注册的加载器中所有可以加载当前模型的加载器
       List<ModelLoader<Object, ?>> modelLoaders = glideContext.getRegistry().getModelLoaders(model);
       //noinspection ForLoopReplaceableByForEach to improve perf
       for (int i = 0, size = modelLoaders.size(); i < size; i++) {
         ModelLoader<Object, ?> modelLoader = modelLoaders.get(i);
+        //每一个ModeLoader 都有一个内部类LoadData，通过函数buildLoadData 来创建
         LoadData<?> current = modelLoader.buildLoadData(model, width, height, options);
         if (current != null) {
           loadData.add(current);

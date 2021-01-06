@@ -21,7 +21,21 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-/** A prioritized {@link ThreadPoolExecutor} for running jobs in Glide. */
+/**
+ * A prioritized {@link ThreadPoolExecutor} for running jobs in Glide.
+ *
+ * 实例化 ExecutorService 的方式有两种：一种是工厂方法，另一种是直接创建
+ *
+ * 一般情况下，ExecutorService 并不会自动关闭，即使所有任务都执行完毕，或者没有要处理的任务，也不会自动销毁 ExecutorService 。它会一直出于等待状态，等待我们给它分配新的工作
+ *
+ * shutdown() 方法并不会立即销毁 ExecutorService 实例，而是首先让 ExecutorService 停止接受新任务，并在所有正在运行的线程完成当前工作后关闭
+ *
+ * shutdownNow() 方法会尝试立即销毁 ExecutorService 实例，所以并不能保证所有正在运行的线程将同时停止。该方法会返回等待处理的任务列表，由开发人员自行决定如何处理这些任务
+ *
+ * 因为提供了两个方法，因此关闭 ExecutorService 实例的最佳实战 （ 也是 Oracle 所推荐的 ）就是同时使用这两种方法并结合 awaitTermination() 方法。
+ *
+ * 使用这种方式，ExecutorService 首先停止执行新任务，等待指定的时间段完成所有任务。如果该时间到期，则立即停止执行
+ */
 public final class GlideExecutor implements ExecutorService {
   /**
    * The default thread name prefix for executors used to load/decode/transform data not found in
@@ -51,7 +65,10 @@ public final class GlideExecutor implements ExecutorService {
 
   private static final String DEFAULT_ANIMATION_EXECUTOR_NAME = "animation";
 
-  /** The default keep alive time for threads in our cached thread pools in milliseconds. */
+  /**
+   * The default keep alive time for threads in our cached thread pools in milliseconds.
+   *  10秒有10000毫秒
+   * */
   private static final long KEEP_ALIVE_TIME_MS = TimeUnit.SECONDS.toMillis(10);
 
   // Don't use more than four threads when automatically determining thread count..
@@ -241,6 +258,7 @@ public final class GlideExecutor implements ExecutorService {
     return delegate.invokeAll(tasks, timeout, unit);
   }
 
+  //invokeAny() 方法将一组任务分配给 ExecutorService，使每个任务执行，并返回任意一个成功执行的任务的结果 ( 如果成功执行 )
   @NonNull
   @Override
   public <T> T invokeAny(@NonNull Collection<? extends Callable<T>> tasks)

@@ -15,6 +15,7 @@ import java.util.Map;
 @SuppressWarnings("rawtypes")
 public class ResourceDecoderRegistry {
   private final List<String> bucketPriorityList = new ArrayList<>();
+  //String bucket
   private final Map<String, List<Entry<?, ?>>> decoders = new HashMap<>();
 
   public synchronized void setBucketPriorityList(@NonNull List<String> buckets) {
@@ -57,8 +58,7 @@ public class ResourceDecoderRegistry {
 
   @NonNull
   @SuppressWarnings("unchecked")
-  public synchronized <T, R> List<Class<R>> getResourceClasses(
-      @NonNull Class<T> dataClass, @NonNull Class<R> resourceClass) {
+  public synchronized <T, R> List<Class<R>> getResourceClasses(@NonNull Class<T> dataClass, @NonNull Class<R> resourceClass) {
     List<Class<R>> result = new ArrayList<>();
     for (String bucket : bucketPriorityList) {
       List<Entry<?, ?>> entries = decoders.get(bucket);
