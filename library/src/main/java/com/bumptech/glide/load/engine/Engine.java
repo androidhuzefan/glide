@@ -269,7 +269,6 @@ public class Engine
       Executor callbackExecutor,
       EngineKey key,
       long startTime) {
-
     //在弱引用和内存缓存中，都没有找到图片，就执行任务。这个任务，会在磁盘缓存中查找，因为磁盘读取耗时较大，所以放在任务线程中
     EngineJob<?> current = jobs.get(key, onlyRetrieveFromCache);
     if (current != null) {

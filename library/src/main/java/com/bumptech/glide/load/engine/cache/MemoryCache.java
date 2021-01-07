@@ -6,8 +6,6 @@ import com.bumptech.glide.load.Key;
 import com.bumptech.glide.load.engine.Resource;
 
 /**
- *
- *
  *  An interface for adding and removing resources from an in memory cache.
  *  */
 public interface MemoryCache {

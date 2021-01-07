@@ -24,6 +24,7 @@ public final class MemorySizeCalculator {
   @VisibleForTesting static final int BYTES_PER_ARGB_8888_PIXEL = 4;
   private static final int LOW_MEMORY_BYTE_ARRAY_POOL_DIVISOR = 2;
 
+  //bytes
   private final int bitmapPoolSize;
   private final int memoryCacheSize;
   private final Context context;
@@ -39,7 +40,7 @@ public final class MemorySizeCalculator {
   MemorySizeCalculator(MemorySizeCalculator.Builder builder) {
     this.context = builder.context;
 
-    ////默认为 4MB，如果是低内存设备则在此基础上除以二
+    //默认为4MB，如果是低内存设备则在此基础上除以二
     arrayPoolSize =
         isLowMemoryDevice(builder.activityManager)
             ? builder.arrayPoolSizeBytes / LOW_MEMORY_BYTE_ARRAY_POOL_DIVISOR
