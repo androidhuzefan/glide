@@ -18,13 +18,11 @@ public class StreamLocalUriFetcher extends LocalUriFetcher<InputStream> {
   /** A contact uri (e.g. content://com.android.contacts/contacts/38) */
   private static final int ID_CONTACTS_CONTACT = 3;
   /**
-   * A contact display photo (high resolution) uri (e.g.
-   * content://com.android.contacts/5/display_photo)
+   * A contact display photo (high resolution) uri (e.g.content://com.android.contacts/5/display_photo)
    */
   private static final int ID_CONTACTS_PHOTO = 4;
   /**
-   * Uri for optimized search of phones by number (e.g.
-   * content://com.android.contacts/phone_lookup/232323232
+   * Uri for optimized search of phones by number (e.g.content://com.android.contacts/phone_lookup/232323232）
    */
   private static final int ID_LOOKUP_BY_PHONE = 5;
   /** Match the incoming Uri for special cases which we can handle nicely. */

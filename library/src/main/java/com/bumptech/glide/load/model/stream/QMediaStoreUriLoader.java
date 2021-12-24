@@ -154,8 +154,10 @@ public final class QMediaStoreUriLoader<DataT> implements ModelLoader<Uri, DataT
     @Nullable
     private LoadData<DataT> buildDelegateData() throws FileNotFoundException {
       if (Environment.isExternalStorageLegacy()) {
+        //Querying for and opening the file via the underlying file path, rather than via ContentResolver
         return fileDelegate.buildLoadData(queryForFilePath(uri), width, height, options);
       } else {
+        //MediaStore.setRequireOriginal
         Uri toLoad = isAccessMediaLocationGranted() ? MediaStore.setRequireOriginal(uri) : uri;
         return uriDelegate.buildLoadData(toLoad, width, height, options);
       }

@@ -39,6 +39,7 @@ public class VideoDecoder<T> implements ResourceDecoder<T, Bitmap> {
    */
   public static final long DEFAULT_FRAME = -1;
 
+  //(时间）或给定时间的数据源相关联的同步（或密钥）帧
   /** Matches the behavior of {@link MediaMetadataRetriever#getFrameAtTime(long)}. */
   @VisibleForTesting
   static final int DEFAULT_FRAME_OPTION = MediaMetadataRetriever.OPTION_CLOSEST_SYNC;
@@ -233,14 +234,17 @@ public class VideoDecoder<T> implements ResourceDecoder<T, Bitmap> {
       int originalWidth =
           Integer.parseInt(
               mediaMetadataRetriever.extractMetadata(
+                  //如果媒体包含视频，则该密钥检索其宽度
                   MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
       int originalHeight =
           Integer.parseInt(
               mediaMetadataRetriever.extractMetadata(
+                  //如果媒体包含视频，则该密钥检索其高度
                   MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
       int orientation =
           Integer.parseInt(
               mediaMetadataRetriever.extractMetadata(
+                  //此键检索视频旋转角度的程度，如果可用的话。视频旋转角度可以是0, 90, 180度，也可以是270度
                   MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION));
 
       if (orientation == 90 || orientation == 270) {

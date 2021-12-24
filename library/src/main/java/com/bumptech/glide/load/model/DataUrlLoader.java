@@ -127,6 +127,7 @@ public final class DataUrlLoader<Model, Data> implements ModelLoader<Model, Data
           new DataDecoder<InputStream>() {
             @Override
             public InputStream decode(String url) {
+              //data:[mediatype][;base64],some_data
               if (!url.startsWith(DATA_SCHEME_IMAGE)) {
                 throw new IllegalArgumentException("Not a valid image data URL.");
               }

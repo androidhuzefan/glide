@@ -25,6 +25,7 @@ public final class BitmapImageDecoderResourceDecoder extends ImageDecoderResourc
       int requestedResourceHeight,
       OnHeaderDecodedListener listener)
       throws IOException {
+    //可以将PNG, JPEG, WEBP, GIF, or HEIF 格式的图片的转换成Drawable 或者Bitmap 对象的类
     Bitmap result = ImageDecoder.decodeBitmap(source, listener);
     if (Log.isLoggable(TAG, Log.VERBOSE)) {
       Log.v(

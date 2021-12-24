@@ -527,7 +527,7 @@ public final class GlideBuilder {
       connectivityMonitorFactory = new DefaultConnectivityMonitorFactory();
     }
 
-    //创建 Bitmap 池，用于回收LruCache缓存的图片，把图片回收到bitmapPool中，这样下次再创建图片时，可服用该内存，避免连续创建回收内存，造成的内存抖动
+    //创建 Bitmap 池，用于回收LruCache缓存的图片，把图片回收到bitmapPool中，这样下次再创建图片时，可用该内存，避免连续创建回收内存，造成的内存抖动
     if (bitmapPool == null) {
       int size = memorySizeCalculator.getBitmapPoolSize();
       if (size > 0) {

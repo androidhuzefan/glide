@@ -12,6 +12,10 @@ import java.io.File;
 import java.io.IOException;
 
 /**
+ * 磁盘缓存
+ *
+ * 默认磁盘大小为 250 MB ，位置是在应用的 缓存文件夹 中的一个 特定目录
+ *
  * The default DiskCache implementation. There must be no more than one active instance for a given
  * directory at a time.
  *

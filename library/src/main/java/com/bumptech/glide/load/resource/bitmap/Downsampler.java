@@ -41,6 +41,8 @@ import java.util.Set;
 /**
  * Downsamples, decodes, and rotates images according to their exif orientation using {@link
  * BitmapFactory}.
+ *
+ * 主要职责是从输入流中解析出Bitmap
  */
 public final class Downsampler {
   static final String TAG = "Downsampler";

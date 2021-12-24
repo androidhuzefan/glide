@@ -31,7 +31,8 @@ import java.util.Map;
  *
  * DecodeJob 实现了 Runnable 接口，由 EngineJob 将其运行在指定线程池中
  *
- * 会根据资源类型去 Glide 中获取已注册的 DataFetcher ，然后通过 DataFetcher#loadData 方法获取原始数据，获取完成后使用 Encoder 将数据存入磁盘缓存文件中，同时使用对应的解码器将原始数据转换为相应的资源文件
+ * 会根据资源类型去 Glide 中获取已注册的 DataFetcher ，然后通过 DataFetcher#loadData 方法获取原始数据，获取完成后使用 Encoder 将数据存入磁盘缓存文件中，
+ * 同时使用对应的解码器将原始数据转换为相应的资源文件
  *
  * 首次加载一张图片资源时，资源加载完成后会先存入到本地缓存文件中，然后再从文件中获取
  *

@@ -18,6 +18,10 @@ import java.util.Set;
 /**
  * 缓存大小管理、封装、日志记录
  *
+ * Bitmap 池
+ *
+ * 默认大小基于设备的分辨率和密度，同时也考虑内存类和 isLowRamDevice 的返回值
+ *
  * An {@link com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool} implementation that uses an
  * {@link com.bumptech.glide.load.engine.bitmap_recycle.LruPoolStrategy} to bucket {@link Bitmap}s
  * and then uses an LRU eviction policy to evict {@link android.graphics.Bitmap}s from the least

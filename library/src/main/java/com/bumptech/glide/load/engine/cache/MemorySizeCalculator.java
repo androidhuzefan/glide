@@ -137,6 +137,8 @@ public final class MemorySizeCalculator {
     // can be evaluated even if we'd normally expect a short circuit.
     //noinspection SimplifiableIfStatement
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+      // 返回值是boolean值，用于判断设备是否是一个低内存的设备，如果返回为true则建议开发者减少一些消耗内存的操作。
+      // Android规定运行内存小于512M的设备为低内存设备。
       return activityManager.isLowRamDevice();
     } else {
       return true;

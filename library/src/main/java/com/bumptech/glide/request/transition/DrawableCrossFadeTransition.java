@@ -6,6 +6,8 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 
 /**
+ * 他用于显示两个Drawable之间的淡入淡出的效果
+ *
  * A cross fade {@link Transition} for {@link android.graphics.drawable.Drawable}s that uses an
  * {@link android.graphics.drawable.TransitionDrawable} to transition from an existing drawable
  * already visible on the target to a new drawable. If no existing drawable exists, this class can

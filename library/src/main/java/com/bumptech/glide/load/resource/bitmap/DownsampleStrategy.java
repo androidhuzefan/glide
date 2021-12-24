@@ -25,6 +25,8 @@ import com.bumptech.glide.util.Synthetic;
  * is supported. To preserve the potential for a {@link com.bumptech.glide.load.Transformation} to
  * scale precisely without a loss in quality, all but {@link #AT_MOST} will prefer to downsample to
  * between 1x and 2x the requested size.
+ *
+ * DownsampleStrategy是负责计算缩放比例和SampleSize策略
  */
 // Public API.
 @SuppressWarnings("WeakerAccess")
@@ -188,6 +190,7 @@ public abstract class DownsampleStrategy {
     }
   }
 
+  //如果这个值等于0，直接返回1，等于0其实就意味着图片宽高/布局宽高至少有一个是小于1的，也就屏蔽了需要放大的情况
   private static class AtLeast extends DownsampleStrategy {
 
     @Synthetic
@@ -284,11 +287,15 @@ public abstract class DownsampleStrategy {
     /**
      * Prefer to round the sample size up so that the image is downsampled to smaller than the
      * requested size to use less memory.
+     *
+     * 内存优先
      */
     MEMORY,
     /**
      * Prefer to round the sample size down so that the image is downsampled to larger than the
      * requested size to maintain quality at the expense of extra memory usage.
+     *
+     * 图片质量优先
      */
     QUALITY,
   }

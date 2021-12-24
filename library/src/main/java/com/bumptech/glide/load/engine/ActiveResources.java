@@ -25,17 +25,22 @@ import java.util.concurrent.ThreadFactory;
  * 当资源加载成功，或者通过缓存获得资源后都会将其放入 ActiveResources 中，资源被释放时移除出 ActiveResources
  * <p>
  * 由于其中的生命周期较短，所以没有大小限制
+ *
+ * 当一个对象被gc掉的时候通知用户线程，进行额外的处理时，就需要使用引用队列了。ReferenceQueue即这样的一个对象，当一个obj被gc掉之后，其相应的包装类，
+ * 即ref对象会被放入queue中。我们可以从queue中获取到相应的对象信息，同时进行额外的处理。比如反向操作，数据清理等。
+ *
+ * weakReference对象，即当值不再被引用时，相应的数据被回收
  */
 
 final class ActiveResources {
   private final boolean isActiveResourceRetentionAllowed;
   private final Executor monitorClearedResourcesExecutor;
   @VisibleForTesting final Map<Key, ResourceWeakReference> activeEngineResources = new HashMap<>();
-  //用来跟踪弱引用（或者软引用、虚引用）是否被 gc 的
-  //MessageQueue#addIdleHandler 添加一个 MessageQueue.IdleHandler 对象，Handler 会在线程空闲时调用这个方法
-  //引用队列 1.使用队列进行数据监控 2.队列监控的反向操作
-  //反向操作，即意味着一个数据变化了，可以通过weakReference对象反向拿相关的数据，从而进行业务的处理。
-  //比如，我们可以通过继承weakReference对象，加入自定义的字段值，额外处理。一个类似weakHashMap如下，这时，我们不再将key值作为弱引用处理，而是封装在weakReference对象中，以实现额外的处理
+  // 用来跟踪弱引用（或者软引用、虚引用）是否被 gc 的
+  // MessageQueue#addIdleHandler 添加一个 MessageQueue.IdleHandler 对象，Handler 会在线程空闲时调用这个方法
+  // 引用队列 1.使用队列进行数据监控 2.队列监控的反向操作
+  // 反向操作，即意味着一个数据变化了，可以通过weakReference对象反向拿相关的数据，从而进行业务的处理。
+  // 比如，我们可以通过继承weakReference对象，加入自定义的字段值，额外处理。一个类似weakHashMap如下，这时，我们不再将key值作为弱引用处理，而是封装在weakReference对象中，以实现额外的处理
   private final ReferenceQueue<EngineResource<?>> resourceReferenceQueue = new ReferenceQueue<>();
 
   private ResourceListener listener;

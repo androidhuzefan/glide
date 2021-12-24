@@ -256,8 +256,9 @@ class EngineJob<R> implements DecodeJob.Callback<R>, Poolable {
       // a lock here so that any newly added callback that executes before the next locked section
       // below can't recycle the resource before we call the callbacks.
       hasResource = true;
-      //cbs 在类初始化的时候，就被赋值
-      //engineJob.addCallback(cb, callbackExecutor); 这个cb 参数是SingleRequest 的对象实现了接口ResourceCallback
+      // cbs 在类初始化的时候，就被赋值
+      // engineJob.addCallback(cb, callbackExecutor);
+      // 这个cb 参数是SingleRequest 的对象实现了接口ResourceCallback
       copy = cbs.copy();
       incrementPendingCallbacks(copy.size() + 1);
 

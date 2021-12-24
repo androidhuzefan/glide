@@ -120,7 +120,6 @@ public class RequestManagerRetriever implements Handler.Callback {
     return applicationManager;
   }
 
-  //传入非Application类型的参数
   @NonNull
   public RequestManager get(Context context) {
     if (context == null) {
@@ -136,7 +135,7 @@ public class RequestManagerRetriever implements Handler.Callback {
           // Only unwrap a ContextWrapper if the baseContext has a non-null application context.
           // Context#createPackageContext may return a Context without an Application instance,
           // in which case a ContextWrapper may be used to attach one.
-          //Service
+          // Service
           && ((ContextWrapper) context).getBaseContext().getApplicationContext() != null) {
         return get(((ContextWrapper) context).getBaseContext());
       }

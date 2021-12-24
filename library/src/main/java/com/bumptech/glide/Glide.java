@@ -558,6 +558,7 @@ public class Glide implements ComponentCallbacks2 {
         .append(int.class, AssetFileDescriptor.class, resourceLoaderAssetFileDescriptorFactory)
         .append(Integer.class, AssetFileDescriptor.class, resourceLoaderAssetFileDescriptorFactory)
         .append(int.class, Uri.class, resourceLoaderUriFactory)
+
         .append(String.class, InputStream.class, new DataUrlLoader.StreamFactory<String>())
         .append(Uri.class, InputStream.class, new DataUrlLoader.StreamFactory<Uri>())
         .append(String.class, InputStream.class, new StringLoader.StreamFactory())
@@ -589,8 +590,10 @@ public class Glide implements ComponentCallbacks2 {
             Uri.class,
             AssetFileDescriptor.class,
             new UriLoader.AssetFileDescriptorFactory(contentResolver))
+
         .append(Uri.class, InputStream.class, new UrlUriLoader.StreamFactory())
         .append(URL.class, InputStream.class, new UrlLoader.StreamFactory())
+
         .append(Uri.class, File.class, new MediaStoreFileLoader.Factory(context))
         .append(GlideUrl.class, InputStream.class, new HttpGlideUrlLoader.Factory())
         .append(byte[].class, ByteBuffer.class, new ByteArrayLoader.ByteBufferFactory())

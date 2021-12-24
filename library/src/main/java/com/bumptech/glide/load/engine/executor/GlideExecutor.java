@@ -404,7 +404,19 @@ public final class GlideExecutor implements ExecutorService {
               android.os.Process.setThreadPriority(
                   DEFAULT_PRIORITY); // NOPMD AccessorMethodGeneration
               if (preventNetworkOperations) {
+                //是用来检测程序中违例情况的开发者工具。最常用的场景就是检测主线程中本地磁盘和网络读写等耗时的操作
                 StrictMode.setThreadPolicy(
+                    //ThreadPolicy
+                    //线程策略检测的内容有
+                    //
+                    //自定义的耗时调用 使用detectCustomSlowCalls()开启
+                    //磁盘读取操作 使用detectDiskReads()开启
+                    //磁盘写入操作 使用detectDiskWrites()开启
+                    //网络操作 使用detectNetwork()开启
+
+                    //penaltyDeath() : 违规时，直接使应用崩溃。
+                    //penaltyDialog() : 违规时，向开发者显示一个恼人的Dialog对话框。
+                    //penaltyLog() : 违规时，将违规信息写入系统日志。
                     new ThreadPolicy.Builder().detectNetwork().penaltyDeath().build());
               }
               try {

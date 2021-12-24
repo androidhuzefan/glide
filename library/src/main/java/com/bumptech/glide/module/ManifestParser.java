@@ -45,6 +45,10 @@ public final class ManifestParser {
         Log.v(TAG, "Got app info metadata: " + appInfo.metaData);
       }
       for (String key : appInfo.metaData.keySet()) {
+        // 例子
+        // <meta-data
+        //  android:name="com.bumptech.glide.samples.flickr.FlickrGlideModule"
+        //  android:value="GlideModule" />
         if (GLIDE_MODULE_VALUE.equals(appInfo.metaData.get(key))) {
           modules.add(parseModule(key));
           if (Log.isLoggable(TAG, Log.DEBUG)) {

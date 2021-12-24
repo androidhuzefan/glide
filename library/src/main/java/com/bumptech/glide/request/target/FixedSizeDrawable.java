@@ -61,6 +61,10 @@ public class FixedSizeDrawable extends Drawable {
   }
 
   private void updateMatrix() {
+    //CENTER: 保持坐标变换前矩形的长宽比，并最大限度的填充变换后的矩形。至少有一边和目标矩形重叠。
+    //END:保持坐标变换前矩形的长宽比，并最大限度的填充变换后的矩形。至少有一边和目标矩形重叠。END提供右下对齐。
+    //FILL: 可能会变换矩形的长宽比，保证变换和目标矩阵长宽一致。
+    //START:保持坐标变换前矩形的长宽比，并最大限度的填充变换后的矩形。至少有一边和目标矩形重叠。START提供左上对齐。
     matrix.setRectToRect(wrappedRect, this.bounds, Matrix.ScaleToFit.CENTER);
   }
 
